@@ -1,0 +1,243 @@
+# Unfold — lemma library
+#
+# Lemmas are reusable, already-established facts. Each has prerequisites, so the
+# validator can (a) resolve them, (b) check acyclicity, and (c) confirm that every
+# chain of justification terminates in an axiom or a definition.
+
+nodes:
+  # ---------------------------------------------------------------- arithmetic
+  - id: lem:well-ordering
+    kind: lemma
+    title: Well-ordering principle
+    statement: Every nonempty set $S \subseteq \mathbb{N}$ has a least element.
+    body: >-
+      Proof sketch: suppose $S$ has no least element, and let $P(n)$ be "$0,1,\dots,n \notin S$".
+      $P(0)$ holds since otherwise $0$ would be least. If $P(n)$ holds and $n+1 \in S$ then
+      $n+1$ is least, contradiction; so $P(n+1)$. By `ax:induction` no natural is in $S$,
+      contradicting $S \ne \varnothing$.
+    prerequisites: [ax:induction, def:natural-number, ax:excluded-middle]
+    tags: [arithmetic]
+
+  - id: lem:lowest-terms-exist
+    kind: lemma
+    title: Every rational has a representation in lowest terms
+    statement: If $r \in \mathbb{Q}$, $r \ne 0$, then $r = a/b$ with $b > 0$ and $\gcd(a,b) = 1$.
+    body: >-
+      Take all representations $a/b$ of $r$ with $b > 0$; the set of such denominators is a
+      nonempty set of naturals, so by `lem:well-ordering` it has a least element $b_0$, with
+      $r = a_0/b_0$. If $d = \gcd(a_0,b_0) > 1$ then $a_0/d$ and $b_0/d$ are integers and
+      $r = (a_0/d)/(b_0/d)$ with $0 < b_0/d < b_0$, contradicting minimality. Hence $d = 1$.
+    prerequisites: [lem:well-ordering, def:lowest-terms, def:gcd]
+    tags: [arithmetic]
+
+  - id: lem:parity
+    kind: lemma
+    title: Parity is exclusive and exhaustive
+    statement: Every integer is even or odd, and no integer is both.
+    body: >-
+      Exhaustive: by induction on $n \ge 0$, $0 = 2 \cdot 0$ is even; if $n$ is even then
+      $n+1$ is odd, and if $n = 2k+1$ is odd then $n+1 = 2(k+1)$ is even; negatives follow by
+      symmetry ($-2k = 2(-k)$, $-(2k+1) = 2(-k-1)+1$). Exclusive: $2k = 2m+1$ would give
+      $2(k-m) = 1$, so $1$ is even, i.e. $1 = 2j$; then $0 < j < 1$ with $j$ an integer,
+      contradicting discreteness of $\mathbb{Z}$ (`ax:integer-ring`).
+    prerequisites: [ax:induction, def:even, def:odd, ax:integer-ring]
+    tags: [arithmetic]
+
+  - id: lem:odd-square-odd
+    kind: lemma
+    title: The square of an odd integer is odd
+    statement: If $n$ is odd then $n^2$ is odd. Consequently, if $n^2$ is even then $n$ is even.
+    body: >-
+      Write $n = 2k+1$. Then $n^2 = 4k^2 + 4k + 1 = 2(2k^2+2k) + 1$, which is odd by
+      `def:odd`. The second sentence is the contrapositive together with `lem:parity`:
+      if $n^2$ is even, $n$ cannot be odd, so $n$ is even.
+    prerequisites: [def:odd, def:even, lem:parity, ax:integer-ring]
+    tags: [arithmetic, number-theory]
+
+  - id: lem:divides-transitive
+    kind: lemma
+    title: Divisibility is transitive
+    statement: If $a \mid b$ and $b \mid c$ then $a \mid c$.
+    body: Write $b = ak$ and $c = bm$; then $c = a(km)$ and $km \in \mathbb{Z}$.
+    prerequisites: [def:divides, ax:integer-ring]
+    tags: [arithmetic]
+
+  - id: lem:divides-linear-combination
+    kind: lemma
+    title: Divisors are closed under integer combinations
+    statement: If $d \mid x$ and $d \mid y$ then $d \mid (mx + ny)$ for all $m, n \in \mathbb{Z}$; in particular $d \mid (x - y)$ and $d \mid (x + y)$.
+    body: >-
+      Write $x = du$, $y = dv$; then $mx + ny = d(mu + nv)$. This single fact is the engine of
+      Euclid's proof that there are infinitely many primes: $p \mid N$ and $p \mid N - 1$
+      together force $p \mid 1$.
+    prerequisites: [def:divides, ax:integer-ring]
+    tags: [arithmetic, number-theory]
+
+  - id: lem:prime-factor-exists
+    kind: lemma
+    title: Every integer greater than 1 has a prime factor
+    statement: For every $n \in \mathbb{N}$ with $n \ge 2$ there is a prime $p$ with $p \mid n$.
+    body: >-
+      Let $S = \{d \in \mathbb{N} : d \ge 2, d \mid n\}$. $S$ is nonempty ($n \in S$) so by
+      `lem:well-ordering` it has a least element $q$. If $q$ were composite, $q = ab$ with
+      $1 < a < q$; then $a \mid q \mid n$ gives $a \mid n$ (`lem:divides-transitive`), so
+      $a \in S$ with $a < q$, contradicting minimality. Hence $q$ is prime.
+    prerequisites: [lem:well-ordering, def:prime, lem:divides-transitive, ax:naive-set]
+    tags: [number-theory]
+
+  - id: lem:euclid-lemma
+    kind: lemma
+    title: Euclid's lemma
+    statement: If $p$ is prime and $p \mid ab$ then $p \mid a$ or $p \mid b$.
+    body: >-
+      If $p \nmid a$ then $\gcd(p,a) = 1$ (the only positive divisors of $p$ are $1$ and $p$,
+      and $p$ does not divide $a$), so Bezout gives $1 = sp + ta$; multiplying by $b$,
+      $b = spb + tab$, and both terms on the right are divisible by $p$. Hence $p \mid b$.
+    prerequisites: [def:prime, def:gcd, lem:divides-linear-combination]
+    tags: [number-theory]
+
+  - id: lem:geometric-series-tail
+    kind: lemma
+    title: Tail of the decimal geometric series
+    statement: $\sum_{j>k} 10^{-j} = \tfrac{1}{9} \cdot 10^{-k}$ and therefore $\sum_{j>k} 9 \cdot 10^{-j} = 10^{-k}$.
+    body: >-
+      The partial sums are $\sum_{j=k+1}^{m} 10^{-j} = 10^{-k}\,\frac{1 - 10^{-(m-k)}}{9}$, which
+      increase to $10^{-k}/9$; completeness (`ax:real-field`) supplies the limit. The bound
+      $\left|\sum_{j>k}(x_j - y_j)10^{-j}\right| \le 10^{-k}$ whenever all digits lie in
+      $\{0,\dots,9\}$ is what makes decimal comparisons rigorous.
+    prerequisites: [ax:real-field, def:decimal-expansion]
+    tags: [analysis, infinity]
+
+  - id: lem:decimal-unique-representation
+    kind: lemma
+    title: Normalized decimal expansions are unique
+    statement: Every $x \in (0,1)$ has a decimal expansion that does not end in repeating $9$s and does not end in repeating $0$s, except that $x$ has such an expansion uniquely if we forbid terminating expansions. Two expansions that avoid trailing $9$s and represent the same real are identical.
+    body: >-
+      Concretely: if $0.d_1d_2\dots$ and $0.e_1e_2\dots$ are two expansions of the same $x$,
+      neither ending in all $9$s, and $k$ is the first index with $d_k \ne e_k$, then
+      $|d_k - e_k| \cdot 10^{-k} = \left|\sum_{j>k}(e_j - d_j)10^{-j}\right| \le 10^{-k}$
+      by `lem:geometric-series-tail`; equality requires $|d_k - e_k| = 1$ and the tail of one
+      expansion to be all $9$s and the other all $0$s, which is excluded. So $k$ does not exist.
+      Every $x \in (0,1)$ admits an expansion avoiding trailing $9$s and trailing $0$s
+      simultaneously: choose the non-terminating one, and if it were eventually constant we
+      would still have digits in $\{0,\dots,9\}$ with infinitely many nonzero entries.
+    prerequisites: [lem:geometric-series-tail, def:decimal-expansion, ax:real-field]
+    tags: [analysis, infinity]
+
+  - id: lem:subset-uncountable
+    kind: lemma
+    title: Uncountability passes to supersets
+    statement: If $A \subseteq B$ and $A$ is uncountable then $B$ is uncountable.
+    body: >-
+      Contrapositive: if $B$ were countable there is a surjection $g : \mathbb{N} \to B$; then
+      enumerating the elements of $g(1), g(2), \dots$ that happen to lie in $A$ (skipping the
+      rest) gives a surjection $\mathbb{N} \to A$, so $A$ is countable.
+    prerequisites: [def:uncountable, def:subset, def:countable, ax:excluded-middle]
+    tags: [set-theory, infinity]
+
+  - id: lem:interval-equideck
+    kind: lemma
+    title: $(0,1)$ is equinumerous with $\mathbb{R}$
+    statement: There is a bijection $(0,1) \to \mathbb{R}$; for example $x \mapsto \tan\!\big(\pi(x - \tfrac12)\big)$.
+    body: >-
+      This map is strictly increasing on $(0,1)$, tends to $-\infty$ as $x \to 0^+$ and to
+      $+\infty$ as $x \to 1^-$, so it is bijective onto $\mathbb{R}$ by the intermediate value
+      property of complete ordered fields. All we actually need is the weaker consequence used
+      in the uncountability proof: $(0,1) \subseteq \mathbb{R}$, so `lem:subset-uncountable`
+      applies directly.
+    prerequisites: [def:real-number-line, def:bijection, ax:real-field]
+    tags: [analysis, infinity]
+
+  - id: lem:strings-countable
+    kind: lemma
+    title: Finite strings over a finite alphabet are countable
+    statement: If $\Sigma$ is a finite alphabet then $\Sigma^*$, the set of all finite strings over $\Sigma$, is countable.
+    body: >-
+      List strings by length and then lexicographically within each length: $\Sigma^0, \Sigma^1,
+      \Sigma^2, \dots$ each finite, and a finite union of finite sets is finite, so the
+      enumeration reaches every string after finitely many steps. Hence there are only
+      countably many Turing machines and countably many programs (`def:program-encoding`).
+    prerequisites: [def:countable, def:finite-set, ax:naive-set]
+    tags: [computation, set-theory]
+
+  # -------------------------------------------------------------------- geometry
+  - id: lem:triangle-angle-sum
+    kind: lemma
+    title: Angle sum of a triangle
+    statement: The interior angles of a triangle sum to $180^\circ$. In a right triangle the two acute angles sum to $90^\circ$.
+    body: >-
+      Through a vertex $B$ draw the line $\ell$ parallel to the opposite side $AC$
+      (parallel postulate, `ax:euclidean-plane`). The alternate interior angles made by the
+      transversals $AB$ and $CB$ copy $\angle A$ and $\angle C$ to the two sides of $\angle B$
+      along $\ell$; the three angles therefore fill the straight angle at $B$, which is
+      $180^\circ$. Subtracting the right angle gives $\alpha + \beta = 90^\circ$.
+    prerequisites: [ax:euclidean-plane, def:triangle, def:right-angle]
+    tags: [geometry]
+
+  - id: lem:quadrilateral-angles
+    kind: lemma
+    title: Angle sum of a quadrilateral
+    statement: The interior angles of a (convex) quadrilateral sum to $360^\circ$; a rhombus with one right angle is a square.
+    body: >-
+      A diagonal splits the quadrilateral into two triangles, each contributing $180^\circ$
+      (`lem:triangle-angle-sum`). For the second claim: in a rhombus opposite angles are equal
+      and adjacent angles are supplementary, so one right angle forces all four to be right
+      angles; with four congruent sides and four right angles the figure is a square
+      (`def:square`).
+    prerequisites: [lem:triangle-angle-sum, def:square, def:polygon]
+    tags: [geometry]
+
+  - id: lem:polyhedron-flattens
+    kind: lemma
+    title: A convex polyhedron minus one face is a connected plane graph
+    statement: Removing one face of a convex polyhedron and projecting the rest onto a plane gives a connected plane graph with the same $V$ and $E$ and $F - 1$ faces.
+    body: >-
+      Choose a point $O$ just outside a face $\sigma$, slightly perturbed so that it is not
+      coplanar with any edge, and project every remaining vertex and edge radially from $O$
+      onto a plane beyond the polyhedron. Convexity makes this projection injective on the
+      surface minus $\sigma$: two distinct points of the boundary that are not both in $\sigma$
+      cannot lie on the same ray from $O$ without the segment between them leaving the solid.
+      Hence no edges cross, incidences are preserved, and the faces other than $\sigma$ become
+      the faces of a connected plane graph — including the outer face, which is the image of
+      the neighbourhood of $\sigma$.
+    prerequisites: [def:polyhedron, def:planar-graph, def:connected-graph]
+    tags: [geometry, graph-theory]
+
+  - id: lem:planar-triangulation
+    kind: lemma
+    title: Plane graphs can be triangulated
+    statement: Any connected plane graph can be made into one in which every bounded face is a triangle, by adding edges; each added edge increases $E$ and $F$ by exactly $1$.
+    body: >-
+      While some bounded face has a boundary with $\ge 4$ sides, take two non-adjacent vertices
+      on that boundary and join them by a curve drawn entirely inside the face. This splits one
+      face into two, so $F \mapsto F + 1$, and adds one edge, so $E \mapsto E + 1$; $V$ is
+      unchanged and $V - E + F$ is unchanged. Each step strictly reduces the total number of
+      boundary sides of non-triangular faces, so the process terminates.
+    prerequisites: [def:planar-graph, def:connected-graph, ax:euclidean-plane]
+    tags: [graph-theory, geometry]
+
+  - id: lem:triangulation-ear
+    kind: lemma
+    title: Boundary triangles of a triangulated plane graph
+    statement: In a triangulated connected plane graph with at least one bounded face, some bounded triangular face shares at least one edge with the outer face.
+    body: >-
+      Walk around the outer face boundary. It has at least three edges. Consider the bounded
+      face incident with the first edge of that walk: it is a triangle $T$. If $T$ shares only
+      that one edge with the outer face, then its other two edges are interior; but the walk
+      must turn, and the face on the other side of the turning vertex is again a bounded
+      triangle meeting the outer boundary in at least two edges. Either way we obtain a
+      triangle sharing one or two edges with the outer face, and those are the only two
+      removal cases.
+    prerequisites: [lem:planar-triangulation, def:planar-graph, def:connected-graph]
+    tags: [graph-theory]
+
+  - id: lem:tree-has-leaf
+    kind: lemma
+    title: Every finite tree with at least two vertices has a leaf
+    statement: A finite tree with $n \ge 2$ vertices has a vertex of degree $1$, and exactly $n-1$ edges.
+    body: >-
+      Take a maximal path $v_0 v_1 \dots v_k$ in the tree. Any neighbour of $v_0$ outside the
+      path would extend the path, and any neighbour $v_i$ with $i \ge 2$ would create a cycle;
+      so $v_0$ has degree $1$. Counting edges by pruning leaves one at a time gives $n - 1$.
+    prerequisites: [def:tree, def:graph, lem:well-ordering]
+    tags: [graph-theory]

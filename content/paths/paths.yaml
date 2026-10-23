@@ -1,0 +1,85 @@
+# Learning paths: curated orders through the library.
+#
+# Each stop names a proof id and says why it belongs there. The `requires` list
+# is validated exactly like a proof's prerequisites: every id must resolve and the
+# whole path must be acyclic.
+
+paths:
+  - id: infinity
+    title: Infinity
+    blurb: >-
+      Three proofs that the infinite comes in different sizes and that some questions about
+      infinity have no answers at all. Start with a countable infinity you can trust, then break
+      the idea that all infinities are the same, then meet a question no machine can settle.
+    level: Intermediate
+    audience: Anyone comfortable with "for every" and "there exists".
+    stops:
+      - proof: odd-sums-square
+        why: >-
+          Warm-up. Induction is the technique that lets a finite argument cover infinitely many
+          cases, and the gnomon picture is the cleanest example of it.
+      - proof: primes-infinite
+        why: >-
+          The first infinity theorem most people meet. Notice that it is a *negative* claim about
+          finite lists — the shape of argument Cantor will push much further.
+      - proof: cantor-uncountable
+        why: >-
+          The centre of the path: a diagonal construction that shows one infinity is strictly
+          larger than another. Read step s2 and s4.4 at full depth.
+      - proof: halting-undecidable
+        why: >-
+          The same diagonal move, applied to machines instead of digits. The payoff is not about
+          size any more but about what can be known.
+    requires:
+      - def:countable
+      - def:surjection
+
+  - id: number-theory-first-steps
+    title: Number Theory — First Steps
+    blurb: >-
+      Three short proofs that teach the working vocabulary of number theory: divisibility, parity,
+      and the two moves that show up in almost every elementary argument (minimal counterexample
+      and contradiction).
+    level: Beginner
+    audience: No prerequisites beyond school arithmetic.
+    stops:
+      - proof: primes-infinite
+        why: >-
+          One page of arithmetic with enormous consequences. Introduces divisibility and the
+          "assume the list is complete" gambit.
+      - proof: sqrt2-irrational
+        why: >-
+          The classic contradiction proof. Unfold step s2.6 all the way down to see parity proved
+          from the definition of even and odd.
+      - proof: odd-sums-square
+        why: >-
+          Induction in its simplest honest form, plus a picture proof of the same statement so you
+          can compare the two.
+    requires:
+      - def:divides
+      - def:prime
+      - def:even
+
+  - id: shape-and-space
+    title: Shape and Space
+    blurb: >-
+      Proofs where the picture is not decoration but part of the argument: dissection, gnomons, and
+      a counting invariant that survives a topological deformation.
+    level: Intermediate
+    audience: Comfortable with area and with counting carefully.
+    stops:
+      - proof: odd-sums-square
+        why: >-
+          Start with the gnomon proof (step s6): an argument whose steps literally are the pieces of
+          a picture.
+      - proof: pythagorean-rearrangement
+        why: >-
+          Dissection as a conservation law. Drag the widget between the two arrangements and then
+          read s3.4 to see why the right angle is not optional.
+      - proof: euler-polyhedron
+        why: >-
+          The invariant $V - E + F$. Step s6 gives a second, projection-free proof of the same
+          identity — compare what each one has to assume.
+    requires:
+      - ax:area
+      - ax:euclidean-plane

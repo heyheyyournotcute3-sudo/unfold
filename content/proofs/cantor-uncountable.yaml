@@ -1,0 +1,373 @@
+id: cantor-uncountable
+title: >-
+  The real numbers are uncountable (Cantor's diagonal argument)
+kind: theorem
+difficulty: 4
+statement: >-
+  There is no surjection $\mathbb{N} \to \mathbb{R}$. In particular the open interval $(0,1)$ is
+  uncountable, and $\mathbb{R}$ is uncountable.
+summary: >-
+  Assume the reals in $(0,1)$ are listed as $f(1), f(2), f(3), \dots$ with decimal digits
+  $d_{nk}$. Build $x$ whose $n$-th digit differs from $d_{nn}$, using only the digits $4$ and $5$.
+  Then $x \in (0,1)$ but $x$ is not on the list, contradicting surjectivity.
+tags: [set-theory, infinity, diagonalisation, classics]
+prerequisites:
+  - def:countable
+  - def:uncountable
+  - def:surjection
+  - def:decimal-expansion
+  - lem:decimal-unique-representation
+  - lem:geometric-series-tail
+  - lem:subset-uncountable
+lean:
+  statement: >-
+    theorem Cardinal.cantor (a : Cardinal.{u}) : a < 2 ^ a
+    theorem Real.uncountable : Cardinal.uncountable ℝ
+  name: Cardinal.cantor
+  file: Mathlib/SetTheory/Cardinal/Basic.lean
+  status: candidate
+  note: >-
+    Mathlib's `Cardinal.cantor` is Cantor's *other* theorem ($|A| < |\mathcal{P}(A)|$), proved by
+    the same diagonal move applied to characteristic functions; `Real.uncountable` is derived from
+    it via nested intervals. Names not machine-checked against a pinned commit.
+attribution: >-
+  Georg Cantor, 1891 ("Über eine elementare Frage der Mannigfaltigkeitslehre"). The decimal
+  version is Cantor's own second presentation; the 1874 argument was different and non-constructive.
+
+steps:
+  - id: s1
+    text: >-
+      Suppose, for contradiction, that $(0,1)$ is countable. Then there is a surjection
+      $f : \mathbb{N} \to (0,1)$, i.e. a complete list
+      $$f(1),\; f(2),\; f(3),\; \dots$$
+      containing every real number strictly between $0$ and $1$.
+    justification:
+      rule: rule:contradiction
+      note: Temporary assumption, discharged at step s5.
+    children:
+      - id: s1.1
+        text: >-
+          "$(0,1)$ is countable" means by definition that some function
+          $\mathbb{N} \to (0,1)$ is surjective.
+        justification:
+          ref: def:countable
+      - id: s1.2
+        text: >-
+          Fix one such surjection and call it $f$. Being surjective means: for every
+          $y \in (0,1)$ there is $n \in \mathbb{N}$ with $f(n) = y$.
+        justification:
+          ref: def:surjection
+      - id: s1.3
+        text: >-
+          We will construct a specific $x \in (0,1)$ and show that no $n$ satisfies $f(n) = x$.
+          That contradicts s1.2, so the assumption in s1 must fail.
+        justification:
+          rule: rule:construction
+
+  - id: s2
+    text: >-
+      Write each listed number as a decimal expansion,
+      $$f(n) = 0.d_{n1} d_{n2} d_{n3} \dots, \qquad d_{nk} \in \{0,1,\dots,9\},$$
+      always choosing the expansion that does **not** end in repeating $9$s. This makes every
+      digit $d_{nk}$ a well-defined single number.
+    justification:
+      ref: def:decimal-expansion
+    children:
+      - id: s2.1
+        text: >-
+          Every $x \in (0,1)$ has at least one decimal expansion $0.d_1d_2d_3\dots$ with digits in
+          $\{0,\dots,9\}$; the expansion denotes the convergent series $\sum_j d_j 10^{-j}$.
+        justification:
+          ref: def:decimal-expansion
+      - id: s2.2
+        text: >-
+          The expansion is not always unique: a terminating decimal has two, for instance
+          $0.5000\dots = 0.4999\dots$. This is the only kind of ambiguity.
+        justification:
+          ref: lem:decimal-unique-representation
+        children:
+          - id: s2.2.1
+            text: >-
+              Two distinct expansions of the same real must eventually be all $0$s in one and all
+              $9$s in the other; conversely any such pair represents the same real.
+            justification:
+              ref: lem:decimal-unique-representation
+          - id: s2.2.2
+            text: >-
+              So for each $n$ choose the expansion of $f(n)$ that does not end in repeating $9$s.
+              That choice is unique, hence the digits $d_{nk}$ are well defined.
+            justification:
+              rule: rule:construction
+              note: >-
+                Choosing a *canonical* expansion is the single most commonly skipped step in
+                informal versions of this proof. Skipping it makes the argument wrong.
+      - id: s2.3
+        text: >-
+          Arrange the chosen digits in an infinite grid: row $n$ holds the digits of $f(n)$, and
+          the **diagonal** is the sequence $d_{11}, d_{22}, d_{33}, \dots$
+        justification:
+          rule: rule:construction
+    checkpoint:
+      id: cp1
+      question: >-
+        Why bother fixing a canonical expansion in s2.2? Suppose we did not, and some
+        $f(n) = 0.5$ was listed as $0.4999\dots$ while our constructed $x$ came out as
+        $0.5000\dots$
+      options:
+        - >-
+          Nothing goes wrong; the two notations are equal anyway.
+        - >-
+          The argument would fail: $x$ could differ from $f(n)$ in every written digit and yet be
+          the same real number, so we would not have produced anything off the list.
+        - >-
+          It would make $x$ irrational.
+        - >-
+          It would only affect finitely many rows.
+      answer: 1
+      explanation: >-
+        "Differs in the $n$-th digit" is a statement about *strings of digits*, but we need a
+        statement about *real numbers*. Two different digit strings can name the same real
+        exactly when one ends in all $0$s and the other in all $9$s. Step s3 avoids $0$ and $9$
+        entirely, and step s2.2 canonicalises the list, so the two together make digit
+        difference imply numerical difference (s4.3).
+
+  - id: s3
+    text: >-
+      Define a new digit sequence by looking only at the diagonal:
+      $$x_n = \begin{cases} 5 & \text{if } d_{nn} \ne 5,\\[2pt] 4 & \text{if } d_{nn} = 5,\end{cases}
+      \qquad\text{and set}\qquad x = 0.x_1 x_2 x_3 \dots$$
+      By construction $x_n \ne d_{nn}$ for every $n$.
+    justification:
+      rule: rule:diagonal-construction
+    widget:
+      id: cantor-diagonal
+      caption: >-
+        Edit the digits of the listed numbers (click any cell) or shuffle the list. The diagonal
+        is highlighted, and $x$ is rebuilt live by the $4/5$ rule. Watch it stay off the list.
+    children:
+      - id: s3.1
+        text: >-
+          The rule "$x_n = 5$ if $d_{nn} \ne 5$, else $4$" determines a unique digit for each
+          $n$, since exactly one of $d_{nn} \ne 5$ and $d_{nn} = 5$ holds.
+        justification:
+          ref: ax:excluded-middle
+      - id: s3.2
+        text: >-
+          Hence $n \mapsto x_n$ is a function $\mathbb{N} \to \{4,5\}$, and the sequence defines a
+          decimal expansion $0.x_1x_2x_3\dots$
+        justification:
+          rule: rule:set-builder
+          ref: def:decimal-expansion
+      - id: s3.3
+        text: >-
+          In both cases $x_n \ne d_{nn}$: if $d_{nn} \ne 5$ then $x_n = 5 \ne d_{nn}$; if
+          $d_{nn} = 5$ then $x_n = 4 \ne 5 = d_{nn}$.
+        justification:
+          rule: rule:case-analysis
+      - id: s3.4
+        text: >-
+          Note the deliberate choice of the digits $4$ and $5$: every $x_n$ is neither $0$ nor $9$,
+          so $x$'s expansion ends in neither repeating $0$s nor repeating $9$s.
+        justification:
+          rule: rule:diagonal-construction
+        children:
+          - id: s3.4.1
+            text: >-
+              A sequence whose terms all lie in $\{4,5\}$ has no tail consisting entirely of $0$s
+              and no tail consisting entirely of $9$s.
+            justification:
+              rule: rule:instantiation
+          - id: s3.4.2
+            text: >-
+              Combined with the canonical choice in s2.2, both $x$ and each $f(n)$ are written in
+              the unique non-ambiguous form, so digit comparison is a valid test for numerical
+              inequality.
+            justification:
+              ref: lem:decimal-unique-representation
+          - id: s3.4.3
+            text: >-
+              *Why not the more popular rule $x_n = d_{nn} + 1 \pmod{10}$?* It produces $0$s and
+              $9$s, and then $x$ could end in all $9$s and coincide with a listed number written
+              with trailing $0$s. The $4/5$ rule costs nothing and removes the worry.
+            aside: true
+            justification:
+              ref: lem:decimal-unique-representation
+
+  - id: s4
+    text: >-
+      Then $x$ is a real number in $(0,1)$, and $x \ne f(n)$ for every $n \in \mathbb{N}$.
+    justification:
+      step: s3.3
+    children:
+      - id: s4.1
+        text: >-
+          First, the expansion denotes a real number: the partial sums
+          $\sum_{j=1}^{m} x_j 10^{-j}$ increase and are bounded above by $1$, so completeness
+          supplies a limit $x \in [0,1]$.
+        justification:
+          ref: ax:real-field
+        children:
+          - id: s4.1.1
+            text: >-
+              $x \ge 0.4 > 0$, since the first digit is $4$ or $5$ and all later terms are
+              nonnegative.
+            justification:
+              rule: rule:decimal-estimate
+          - id: s4.1.2
+            text: >-
+              $x \le 0.555\dots = \sum_{j \ge 1} 5 \cdot 10^{-j} = 5 \cdot \tfrac{1}{9} = \tfrac59 < 1$,
+              since every digit is at most $5$.
+            justification:
+              ref: lem:geometric-series-tail
+          - id: s4.1.3
+            text: >-
+              So $0 < x < 1$, i.e. $x \in (0,1)$.
+            justification:
+              ref: def:real-number-line
+      - id: s4.2
+        text: >-
+          Now fix any $n \in \mathbb{N}$ and suppose for contradiction that $x = f(n)$.
+        justification:
+          rule: rule:contradiction
+      - id: s4.3
+        text: >-
+          The expansions of $x$ and $f(n)$ differ in position $n$ (step s3.3). Let $k$ be the
+          *first* position at which they differ; then $k$ exists and $k \le n$.
+        justification:
+          step: s3.3
+          rule: rule:construction
+      - id: s4.4
+        text: >-
+          If two expansions of reals in $(0,1)$ first differ at position $k$, then the numbers
+          differ: $|x - f(n)| > 0$. So $x \ne f(n)$, contradicting s4.2.
+        justification:
+          ref: lem:decimal-unique-representation
+        children:
+          - id: s4.4.1
+            text: >-
+              Subtracting the two series, the first $k-1$ digits cancel:
+              $$x - f(n) = (x_k - d_{nk})\,10^{-k} + \sum_{j>k} (x_j - d_{nj})\,10^{-j}.$$
+            justification:
+              ref: def:decimal-expansion
+              rule: rule:algebra
+          - id: s4.4.2
+            text: >-
+              The tail is bounded: $\left|\sum_{j>k}(x_j - d_{nj})10^{-j}\right| \le \sum_{j>k} 9 \cdot 10^{-j} = 10^{-k}$,
+              because each digit difference is at most $9$ in absolute value.
+            justification:
+              ref: lem:geometric-series-tail
+            children:
+              - id: s4.4.2.1
+                text: >-
+                  $|x_j - d_{nj}| \le 9$ for every $j$, as both are digits in $\{0,\dots,9\}$.
+                justification:
+                  ref: def:decimal-expansion
+              - id: s4.4.2.2
+                text: >-
+                  $\sum_{j>k} 9 \cdot 10^{-j} = 9 \cdot \tfrac{1}{9} \cdot 10^{-k} = 10^{-k}$.
+                justification:
+                  ref: lem:geometric-series-tail
+          - id: s4.4.3
+            text: >-
+              If $x = f(n)$ then the left side is $0$, forcing
+              $|x_k - d_{nk}| \cdot 10^{-k} \le 10^{-k}$, i.e. $|x_k - d_{nk}| \le 1$, and forcing
+              the tail bound to be attained exactly.
+            justification:
+              rule: rule:decimal-estimate
+          - id: s4.4.4
+            text: >-
+              The bound in s4.4.2 is attained only if the two tails are extremal: one expansion
+              has digit $9$ in every position after $k$ and the other has digit $0$ in every
+              position after $k$.
+            justification:
+              rule: rule:decimal-estimate
+          - id: s4.4.5
+            text: >-
+              That cannot happen. $f(n)$'s expansion was chosen not to end in repeating $9$s
+              (s2.2), and $x$'s digits all lie in $\{4,5\}$, so $x$ ends in neither repeating $9$s
+              nor repeating $0$s (s3.4).
+            justification:
+              step: s3.4
+              note: Also uses the canonical-expansion choice of step s2.2.
+          - id: s4.4.6
+            text: >-
+              Hence $|x - f(n)| > 0$, i.e. $x \ne f(n)$, contradicting the supposition in s4.2.
+            justification:
+              rule: rule:contradiction
+      - id: s4.5
+        text: >-
+          Since $n$ was arbitrary, $x \ne f(n)$ for every $n \in \mathbb{N}$.
+        justification:
+          rule: rule:generalization
+    checkpoint:
+      id: cp2
+      question: >-
+        Someone objects: "your $x$ depends on the list, so a cleverer list might dodge it." What
+        is the answer?
+      options:
+        - >-
+          True — the theorem only holds for lists that are not too clever.
+        - >-
+          The assumption was that the list is *complete*. The construction takes any complete list
+          and produces a real missing from it, so no complete list exists. That is exactly the
+          contradiction we wanted.
+        - >-
+          We can list all reals in a cleverer order and the argument fails.
+        - >-
+          $x$ is not really a well-defined number because it depends on the list.
+      answer: 1
+      explanation: >-
+        The proof is a universal statement about lists: for **every** function
+        $f : \mathbb{N} \to (0,1)$ there is an $x_f \in (0,1)$ not in its range. Dependence of $x$
+        on $f$ is not a bug, it is the diagonal construction. What the argument does *not* claim
+        is that some single real is missing from every list — that would be false, since
+        $1/2$ is on most lists.
+
+  - id: s5
+    text: >-
+      So $x \in (0,1)$ is not in the range of $f$, contradicting the surjectivity of $f$.
+      Therefore $(0,1)$ is uncountable; and since $(0,1) \subseteq \mathbb{R}$, the real numbers
+      are uncountable. $\blacksquare$
+    justification:
+      rule: rule:contradiction
+    children:
+      - id: s5.1
+        text: >-
+          $x \in (0,1)$ (step s4.1.3) and $x \notin \operatorname{range}(f)$ (step s4.5).
+        justification:
+          step: s4.5
+      - id: s5.2
+        text: >-
+          But s1.2 asserted that $f$ is surjective, i.e. that its range is all of $(0,1)$. This
+          is a contradiction of the form $Q \land \neg Q$.
+        justification:
+          ref: def:surjection
+          rule: rule:contradiction
+      - id: s5.3
+        text: >-
+          Therefore no surjection $\mathbb{N} \to (0,1)$ exists: by definition $(0,1)$ is
+          uncountable.
+        justification:
+          ref: def:uncountable
+      - id: s5.4
+        text: >-
+          $(0,1) \subseteq \mathbb{R}$, and uncountability passes to supersets, so $\mathbb{R}$ is
+          uncountable.
+        justification:
+          ref: lem:subset-uncountable
+      - id: s5.5
+        text: >-
+          *Consequences.* There are strictly more reals than naturals: two infinite sizes. The
+          same argument shows $|\mathcal{P}(\mathbb{N})| > |\mathbb{N}|$ by replacing digits with
+          membership bits ($0/1$ instead of $4/5$), and no set is in bijection with its power set.
+        aside: true
+        justification:
+          ref: def:equinumerous
+      - id: s5.6
+        text: >-
+          *Where else you will meet this.* The halting problem is proved undecidable by the same
+          move: build a program that disagrees with the oracle on the oracle's own self-input. See
+          the proof `halting-undecidable`.
+        aside: true
+        justification:
+          ref: def:halting-problem

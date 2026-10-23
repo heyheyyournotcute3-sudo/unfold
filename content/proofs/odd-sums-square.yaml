@@ -1,0 +1,331 @@
+id: odd-sums-square
+title: >-
+  The sum of the first $n$ odd numbers is $n^2$
+kind: theorem
+difficulty: 1
+statement: >-
+  For every integer $n \ge 1$,
+  $$1 + 3 + 5 + \cdots + (2n-1) = \sum_{i=1}^{n} (2i-1) = n^2.$$
+summary: >-
+  Induction: adding the next odd number $2k+1$ to $k^2$ gives exactly $(k+1)^2$. Geometrically,
+  each odd number is an L-shaped gnomon that turns the $k \times k$ square into the
+  $(k+1) \times (k+1)$ square.
+tags: [arithmetic, induction, visual]
+prerequisites:
+  - def:odd
+  - def:sum-notation
+  - def:square-number
+  - ax:induction
+  - def:real-power
+lean:
+  statement: >-
+    theorem sum_range_odd (n : ℕ) : ∑ i in Finset.range n, (2 * i + 1) = n ^ 2
+  name: sum_range_odd
+  file: Mathlib/Algebra/Order/Sum.lean
+  status: candidate
+  note: >-
+    Mathlib's version sums $2i+1$ over $i \in \{0,\dots,n-1\}$, which is the same list of odd
+    numbers as $2i-1$ over $i \in \{1,\dots,n\}$. Name and file not machine-checked.
+attribution: >-
+  The gnomon picture is Pythagorean; the inductive form is the standard modern presentation.
+
+steps:
+  - id: s1
+    text: >-
+      Let $P(n)$ be the assertion $\sum_{i=1}^{n}(2i-1) = n^2$. We prove $P(n)$ for all
+      $n \ge 1$ by **induction on $n$**.
+    justification:
+      ref: ax:induction
+    children:
+      - id: s1.1
+        text: >-
+          The $i$-th positive odd number is $2i - 1$: substituting $i = 1, 2, 3, \dots$ gives
+          $1, 3, 5, \dots$
+        justification:
+          ref: def:odd
+      - id: s1.2
+        text: >-
+          $\sum_{i=1}^{n}(2i-1)$ means $1 + 3 + \cdots + (2n-1)$, defined recursively so that
+          the sum with $n+1$ terms is the sum with $n$ terms plus the $(n+1)$-st term.
+        justification:
+          ref: def:sum-notation
+      - id: s1.3
+        text: >-
+          The induction axiom is stated for predicates on all of $\mathbb{N}$ starting at $0$.
+          Our claim starts at $1$, so define $Q(m) := P(m+1)$ for $m \in \mathbb{N}$.
+        justification:
+          ref: ax:induction
+        children:
+          - id: s1.3.1
+            text: >-
+              Proving $Q(0)$ and $Q(m) \to Q(m+1)$ for all $m$ gives $Q(m)$ for all
+              $m \in \mathbb{N}$ by `ax:induction`.
+            justification:
+              ref: ax:induction
+          - id: s1.3.2
+            text: >-
+              And $Q(m)$ for every $m \ge 0$ is exactly $P(n)$ for every $n = m+1 \ge 1$.
+            justification:
+              rule: rule:substitution
+      - id: s1.4
+        text: >-
+          So the two obligations are: **base case** $P(1)$, and **inductive step**
+          $P(k) \to P(k+1)$ for an arbitrary $k \ge 1$.
+        justification:
+          ref: ax:induction
+
+  - id: s2
+    text: >-
+      **Base case.** $P(1)$ holds: the sum has the single term $2 \cdot 1 - 1 = 1$, and
+      $1 = 1^2$.
+    justification:
+      rule: rule:arithmetic
+    children:
+      - id: s2.1
+        text: >-
+          By the recursive definition of summation, $\sum_{i=1}^{1}(2i-1) = 2(1) - 1$, a single
+          term (the empty sum $0$ plus the first term).
+        justification:
+          ref: def:sum-notation
+      - id: s2.2
+        text: >-
+          $2(1) - 1 = 2 - 1 = 1$.
+        justification:
+          rule: rule:arithmetic
+      - id: s2.3
+        text: >-
+          $1^2 = 1 \cdot 1 = 1$.
+        justification:
+          ref: def:real-power
+        children:
+          - id: s2.3.1
+            text: >-
+              $x^2$ means $x \cdot x$ by the recursive definition of integer powers.
+            justification:
+              ref: def:real-power
+          - id: s2.3.2
+            text: >-
+              $1$ is the multiplicative identity, so $1 \cdot 1 = 1$.
+            justification:
+              ref: ax:integer-ring
+      - id: s2.4
+        text: >-
+          Both sides equal $1$, so $P(1)$ is true.
+        justification:
+          ref: ax:equality
+
+  - id: s3
+    text: >-
+      **Inductive hypothesis.** Fix an arbitrary $k \ge 1$ and assume $P(k)$, that is
+      $\sum_{i=1}^{k}(2i-1) = k^2$.
+    justification:
+      rule: rule:instantiation
+    children:
+      - id: s3.1
+        text: >-
+          $k$ is arbitrary: nothing about $k$ is assumed beyond $k \ge 1$, so whatever we
+          derive will hold for every such $k$.
+        justification:
+          rule: rule:generalization
+      - id: s3.2
+        text: >-
+          Unpacking the notation, $P(k)$ is $1 + 3 + \cdots + (2k-1) = k^2$.
+        justification:
+          ref: def:sum-notation
+
+  - id: s4
+    text: >-
+      **Inductive step.** Peel off the last term:
+      $$\sum_{i=1}^{k+1}(2i-1) = \underbrace{\sum_{i=1}^{k}(2i-1)}_{=\,k^2} + (2k+1) = k^2 + 2k + 1 = (k+1)^2.$$
+      So $P(k) \to P(k+1)$.
+    justification:
+      rule: rule:algebra
+    children:
+      - id: s4.1
+        text: >-
+          Split the sum at $k$: $\sum_{i=1}^{k+1}(2i-1) = \sum_{i=1}^{k}(2i-1) + \big(2(k+1)-1\big)$.
+        justification:
+          ref: def:sum-notation
+        children:
+          - id: s4.1.1
+            text: >-
+              This is the recursive clause of the definition with $n = k$ and
+              $a_i = 2i-1$, so $a_{k+1} = 2(k+1)-1$.
+            justification:
+              ref: def:sum-notation
+      - id: s4.2
+        text: >-
+          Simplify the new term: $2(k+1) - 1 = 2k + 2 - 1 = 2k + 1$.
+        justification:
+          rule: rule:algebra
+        children:
+          - id: s4.2.1
+            text: >-
+              $2(k+1) = 2k + 2$ by distributivity of multiplication over addition.
+            justification:
+              rule: rule:algebra
+              note: A ring axiom for $\mathbb{Z}$.
+          - id: s4.2.2
+            text: >-
+              $2k + 2 - 1 = 2k + 1$ since $2 - 1 = 1$.
+            justification:
+              rule: rule:arithmetic
+      - id: s4.3
+        text: >-
+          Apply the inductive hypothesis (s3.2) to the first part:
+          $\sum_{i=1}^{k}(2i-1) + (2k+1) = k^2 + (2k+1)$.
+        justification:
+          step: s3.2
+          rule: rule:substitution
+      - id: s4.4
+        text: >-
+          And $k^2 + 2k + 1 = (k+1)^2$.
+        justification:
+          rule: rule:algebra
+        children:
+          - id: s4.4.1
+            text: >-
+              $(k+1)^2 = (k+1)(k+1)$ by definition of squaring.
+            justification:
+              ref: def:real-power
+          - id: s4.4.2
+            text: >-
+              Expanding by distributivity: $(k+1)(k+1) = k \cdot k + k \cdot 1 + 1 \cdot k + 1 \cdot 1$.
+            justification:
+              rule: rule:algebra
+              note: Uses only the ring axioms of $\mathbb{Z}$.
+          - id: s4.4.3
+            text: >-
+              Since $1$ is the multiplicative identity, this is $k^2 + k + k + 1 = k^2 + 2k + 1$.
+            justification:
+              ref: ax:integer-ring
+      - id: s4.5
+        text: >-
+          We have shown $\sum_{i=1}^{k+1}(2i-1) = (k+1)^2$, i.e. $P(k+1)$, from the assumption
+          $P(k)$ and the rules of algebra.
+        justification:
+          step: s4.4
+          rule: rule:generalization
+    checkpoint:
+      id: cp1
+      question: >-
+        Which single algebraic identity *is* the inductive step?
+      options:
+        - >-
+          $k^2 + 2k + 1 = (k+1)^2$.
+        - >-
+          $2(k+1) - 1 = 2k + 1$.
+        - >-
+          $1 + 3 + 5 = 9$.
+        - >-
+          $\sum_{i=1}^{n} i = n(n+1)/2$.
+      answer: 0
+      explanation: >-
+        Both of the first two identities are used, but the load-bearing one is
+        $k^2 + (2k+1) = (k+1)^2$: it is precisely the statement that adding the next odd number
+        to a square produces the next square. That is also exactly what the gnomon picture in
+        step s6 shows, and why the two proofs are the same proof seen twice. The last option is
+        a *different* (also true) identity about sums of the first $n$ integers.
+
+  - id: s5
+    text: >-
+      By induction, $P(n)$ holds for every $n \ge 1$. $\blacksquare$
+    justification:
+      ref: ax:induction
+    children:
+      - id: s5.1
+        text: >-
+          We have proved $P(1)$ (step s2) and $P(k) \to P(k+1)$ for arbitrary $k \ge 1$
+          (steps s3 and s4).
+        justification:
+          step: s4.5
+      - id: s5.2
+        text: >-
+          By the induction principle (in the re-indexed form justified in s1.3), $P(n)$ holds
+          for all $n \ge 1$.
+        justification:
+          ref: ax:induction
+      - id: s5.3
+        text: >-
+          Restating without notation: $1 + 3 + 5 + \cdots + (2n-1) = n^2$ for every $n \ge 1$,
+          and each odd number is therefore a difference of consecutive squares.
+        justification:
+          ref: def:square-number
+
+  - id: s6
+    text: >-
+      **A second proof, with no algebra at all.** Draw the odd numbers as L-shaped *gnomons*
+      nested inside one another: the $k$-th gnomon has $2k-1$ cells, and gnomons $1$ through $n$
+      assemble into an $n \times n$ square.
+    justification:
+      rule: rule:area-additivity
+    widget:
+      id: odd-gnomons
+      caption: >-
+        Drag the slider to add gnomons one at a time. Each L-shaped gnomon has $2k-1$ cells and
+        turns the $(k-1) \times (k-1)$ square into the $k \times k$ square.
+    children:
+      - id: s6.1
+        text: >-
+          Start with one cell: a $1 \times 1$ square, area $1 = 1^2$.
+        justification:
+          ref: def:square
+      - id: s6.2
+        text: >-
+          The $k$-th gnomon is the L-shaped strip that must be added to a $(k-1) \times (k-1)$
+          square to obtain the $k \times k$ square: one row of $k$ cells along the bottom and
+          one column of $k$ cells up the side, sharing the corner cell.
+        justification:
+          rule: rule:geometric-construction
+        children:
+          - id: s6.2.1
+            text: >-
+              Counting cells: $k + k - 1 = 2k - 1$ (the corner cell is in both the row and the
+              column, so it is counted once).
+            justification:
+              rule: rule:counting
+            children:
+              - id: s6.2.1.1
+                text: >-
+                  The bottom row of the $k \times k$ square has $k$ cells, of which $k-1$ lie
+                  under the old square's shadow-free region and $1$ is the new corner.
+                justification:
+                  rule: rule:counting
+              - id: s6.2.1.2
+                text: >-
+                  The right column has $k$ cells, sharing exactly the corner cell with the row.
+                justification:
+                  rule: rule:counting
+              - id: s6.2.1.3
+                text: >-
+                  A union of two finite sets of sizes $k$ and $k$ with intersection of size $1$
+                  has size $k + k - 1 = 2k - 1$.
+                justification:
+                  rule: rule:counting
+                  note: Inclusion–exclusion for two finite sets.
+          - id: s6.2.2
+            text: >-
+              So the $k$-th gnomon contains exactly $2k-1$ cells — the $k$-th odd number.
+            justification:
+              ref: def:odd
+      - id: s6.3
+        text: >-
+          Placing gnomons $1, 2, \dots, n$ in order produces the $n \times n$ square, whose area
+          is $n^2$, with no overlaps and no gaps.
+        justification:
+          ref: def:square-number
+      - id: s6.4
+        text: >-
+          Area is finitely additive over non-overlapping pieces, so the total number of cells is
+          the sum of the gnomon sizes: $1 + 3 + \cdots + (2n-1) = n^2$.
+        justification:
+          ref: ax:area
+      - id: s6.5
+        text: >-
+          This is not a different theorem from s1–s5, it is the same one: the inductive step
+          "$k^2 + (2k+1) = (k+1)^2$" is the sentence "adding the $k$-th gnomon to the $k \times k$
+          square gives the $(k+1) \times (k+1)$ square". Induction is the gnomon argument with
+          the picture deleted.
+        aside: true
+        justification:
+          step: s4.4

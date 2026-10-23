@@ -1,0 +1,385 @@
+id: sqrt2-irrational
+title: >-
+  $\sqrt{2}$ is irrational
+kind: theorem
+difficulty: 2
+statement: >-
+  There is no rational number $r$ with $r^2 = 2$. Equivalently, $\sqrt{2} \notin \mathbb{Q}$.
+summary: >-
+  Assume $\sqrt{2} = a/b$ in lowest terms. Squaring forces $a^2 = 2b^2$, so $a^2$ is even,
+  so $a$ is even. Substituting back forces $b$ to be even too — and then the fraction was
+  never in lowest terms after all.
+tags: [number-theory, irrationality, contradiction, classics]
+prerequisites:
+  - def:rational-number
+  - def:irrational-number
+  - def:square-root
+  - def:even
+  - def:odd
+  - lem:parity
+  - lem:odd-square-odd
+  - lem:lowest-terms-exist
+lean:
+  statement: >-
+    theorem irrational_sqrt_two : Irrational (Real.sqrt 2)
+  name: irrational_sqrt_two
+  file: Mathlib/Analysis/SpecialFunctions/Pow/Real.lean
+  status: candidate
+  note: >-
+    Mathlib proves this from unique factorisation rather than by the parity argument below.
+    The link has not been machine-checked against a pinned Mathlib commit; a reviewer should
+    confirm it before the badge is shown as verified.
+attribution: >-
+  Attributed by Proclus to the Pythagoreans; the parity argument is Euclid *Elements* X,
+  lemmas after Prop. 9 (X.9 lemma) in the standard Heiberg text.
+
+steps:
+  - id: s1
+    text: >-
+      Suppose, aiming for a contradiction, that $\sqrt{2}$ is rational. Then we may write
+      $\sqrt{2} = \dfrac{a}{b}$ with $a, b \in \mathbb{Z}$, $b > 0$, and the fraction in
+      **lowest terms**: $\gcd(a,b) = 1$.
+    justification:
+      rule: rule:contradiction
+      note: Temporary assumption, discharged at step s5.
+    widget:
+      id: sqrt2-ladder
+      caption: >-
+        Slide $a$ and $b$: the gap $a^2 - 2b^2$ gets small relative to $b^2$, but for integers
+        it is never zero.
+    checkpoint:
+      id: cp1
+      question: >-
+        Why do we insist that $a/b$ is in lowest terms, rather than just any representation?
+      options:
+        - >-
+          Because $\sqrt{2}$ only equals fractions in lowest terms.
+        - >-
+          Because every nonzero rational *has* such a representation, and the argument later
+          contradicts $\gcd(a,b)=1$ — so we need it as a hypothesis.
+        - >-
+          Because it makes $a$ and $b$ smaller, which speeds up the arithmetic.
+        - >-
+          It is a stylistic convention with no logical role.
+      answer: 1
+      explanation: >-
+        A rational number has many representations, but `lem:lowest-terms-exist` guarantees at
+        least one with $\gcd = 1$. Choosing it costs nothing and buys the contradiction at
+        step s4: we show $2 \mid a$ and $2 \mid b$, i.e. $\gcd(a,b) \ge 2 \ne 1$. Without the
+        lowest-terms hypothesis the proof would only show that $a$ and $b$ share a factor,
+        which is harmless — you could always have picked $a = 2$, $b = 2$ for the number $1$.
+    children:
+      - id: s1.1
+        text: >-
+          First, $\sqrt{2}$ is a legitimate real number: there is a unique $r > 0$ with
+          $r^2 = 2$, and that $r$ is what the symbol denotes.
+        justification:
+          ref: def:square-root
+      - id: s1.2
+        text: >-
+          Assume for contradiction that $\sqrt{2} \in \mathbb{Q}$.
+        justification:
+          rule: rule:contradiction
+          note: The assumption we will destroy.
+      - id: s1.3
+        text: >-
+          By the definition of $\mathbb{Q}$ there are integers $a'$ and $b' \ne 0$ with
+          $\sqrt{2} = a'/b'$.
+        justification:
+          ref: def:rational-number
+      - id: s1.4
+        text: >-
+          Replace $a'/b'$ by an equal fraction $a/b$ in lowest terms with $b > 0$. Such a
+          representation always exists.
+        justification:
+          ref: lem:lowest-terms-exist
+        children:
+          - id: s1.4.1
+            text: >-
+              If $b' < 0$, replace $(a', b')$ by $(-a', -b')$; the value of the fraction is
+              unchanged and the denominator is now positive.
+            justification:
+              rule: rule:algebra
+              note: $(-a')/(-b') = a'/b'$ since $(-1)/(-1) = 1$.
+          - id: s1.4.2
+            text: >-
+              Among all positive denominators of fractions equal to $\sqrt{2}$, choose the
+              smallest; call it $b$, with $\sqrt{2} = a/b$.
+            justification:
+              ref: lem:well-ordering
+            children:
+              - id: s1.4.2.1
+                text: >-
+                  The set $D = \{d \in \mathbb{N} : d > 0 \text{ and } \sqrt{2} = c/d \text{ for some } c \in \mathbb{Z}\}$
+                  is a nonempty subset of $\mathbb{N}$, since it contains the denominator
+                  produced in s1.4.1.
+                justification:
+                  rule: rule:set-builder
+              - id: s1.4.2.2
+                text: >-
+                  Every nonempty subset of $\mathbb{N}$ has a least element, so $D$ has a
+                  minimum $b$.
+                justification:
+                  ref: lem:well-ordering
+                axiom: false
+          - id: s1.4.3
+            text: >-
+              This minimal pair satisfies $\gcd(a,b) = 1$: if $d = \gcd(a,b) > 1$ then
+              $a/d$ and $b/d$ are integers with $\sqrt{2} = (a/d)/(b/d)$ and $0 < b/d < b$,
+              contradicting the minimality of $b$.
+            justification:
+              ref: def:gcd
+            children:
+              - id: s1.4.3.1
+                text: >-
+                  $d \mid a$ and $d \mid b$ with $d \ne 0$, so $a = d \cdot (a/d)$ and
+                  $b = d \cdot (b/d)$ are both integer multiples, hence $a/d, b/d \in \mathbb{Z}$.
+                justification:
+                  ref: def:divides
+              - id: s1.4.3.2
+                text: >-
+                  $\dfrac{a/d}{b/d} = \dfrac{a}{b} = \sqrt{2}$, and $b/d < b$ because $d > 1$
+                  and $b > 0$.
+                justification:
+                  rule: rule:algebra
+              - id: s1.4.3.3
+                text: >-
+                  So $b/d \in D$ with $b/d < b$, contradicting the choice of $b$ as the least
+                  element of $D$. Hence $\gcd(a,b) = 1$.
+                justification:
+                  rule: rule:contradiction
+                  note: Discharges the supposition $d > 1$.
+
+  - id: s2
+    text: >-
+      Square both sides: $a^2 = 2b^2$. So $a^2$ is even, and therefore **$a$ is even**.
+    justification:
+      rule: rule:algebra
+    checkpoint:
+      id: cp2
+      question: >-
+        From $a^2 = 2b^2$ we conclude $a^2$ is even. What exactly licenses that move?
+      options:
+        - >-
+          $a^2$ is even because $a$ is even.
+        - >-
+          The right-hand side literally has the form $2 \times (\text{an integer})$, and
+          $b^2 \in \mathbb{Z}$, which is the definition of even.
+        - >-
+          Evenness is preserved by taking square roots.
+        - >-
+          Because $2b^2$ ends in an even digit.
+      answer: 1
+      explanation: >-
+        `def:even` says $n$ is even iff $n = 2k$ for some integer $k$. Here $k = b^2$, and
+        $b^2 \in \mathbb{Z}$ because $\mathbb{Z}$ is closed under multiplication
+        (`ax:integer-ring`). Note the logical direction: we use "even $\Rightarrow$ square
+        even" nowhere; we use the *definition* going forward and `lem:odd-square-odd` going
+        backward. Option 1 is circular, option 3 is false ($\sqrt{4} = 2$ is even but
+        $\sqrt{9} = 3$ shows the converse fails in the other direction).
+    children:
+      - id: s2.1
+        text: >-
+          From $\sqrt{2} = a/b$, squaring both sides gives $(\sqrt{2})^2 = (a/b)^2$.
+        justification:
+          rule: rule:substitution
+          note: Equals may be replaced by equals inside the squaring function.
+      - id: s2.2
+        text: >-
+          $(\sqrt{2})^2 = 2$, by the defining property of the square root.
+        justification:
+          ref: def:square-root
+      - id: s2.3
+        text: >-
+          $(a/b)^2 = a^2/b^2$, and $b^2 \ne 0$ because $b > 0$.
+        justification:
+          rule: rule:algebra
+          ref: def:real-power
+      - id: s2.4
+        text: >-
+          Combining: $2 = a^2/b^2$, and multiplying both sides by $b^2$ gives $a^2 = 2b^2$.
+        justification:
+          rule: rule:algebra
+          note: Legal since $b^2 \ne 0$ in the field $\mathbb{R}$.
+      - id: s2.5
+        text: >-
+          $a^2 = 2b^2$ with $b^2 \in \mathbb{Z}$ exhibits $a^2$ as twice an integer, so $a^2$
+          is even.
+        justification:
+          ref: def:even
+      - id: s2.6
+        text: >-
+          If $a^2$ is even then $a$ is even.
+        justification:
+          ref: lem:odd-square-odd
+        children:
+          - id: s2.6.1
+            text: >-
+              Suppose, for contradiction, that $a$ is odd. Then $a = 2m + 1$ for some
+              $m \in \mathbb{Z}$.
+            justification:
+              ref: def:odd
+          - id: s2.6.2
+            text: >-
+              Then $a^2 = (2m+1)^2 = 4m^2 + 4m + 1 = 2(2m^2 + 2m) + 1$, which is odd.
+            justification:
+              rule: rule:algebra
+            children:
+              - id: s2.6.2.1
+                text: >-
+                  $(2m+1)^2 = (2m+1)(2m+1) = (2m)(2m) + (2m)(1) + (1)(2m) + (1)(1)
+                  = 4m^2 + 2m + 2m + 1$ by distributivity.
+                justification:
+                  rule: rule:algebra
+                  note: Distributivity in the ring $\mathbb{Z}$.
+              - id: s2.6.2.2
+                text: >-
+                  $4m^2 + 2m + 2m + 1 = 4m^2 + 4m + 1 = 2(2m^2 + 2m) + 1$ by factoring out $2$.
+                justification:
+                  rule: rule:algebra
+              - id: s2.6.2.3
+                text: >-
+                  Since $2m^2 + 2m \in \mathbb{Z}$, the number $2(2m^2+2m) + 1$ is odd by
+                  definition.
+                justification:
+                  ref: def:odd
+          - id: s2.6.3
+            text: >-
+              But s2.5 established that $a^2$ is even, and no integer is both even and odd.
+            justification:
+              ref: lem:parity
+          - id: s2.6.4
+            text: >-
+              Contradiction; so $a$ is not odd. Since every integer is even or odd, $a$ is even.
+            justification:
+              rule: rule:case-analysis
+              ref: lem:parity
+
+  - id: s3
+    text: >-
+      Write $a = 2k$ and substitute back into $a^2 = 2b^2$: we get $4k^2 = 2b^2$, hence
+      $b^2 = 2k^2$, so **$b$ is even** as well.
+    justification:
+      rule: rule:algebra
+    children:
+      - id: s3.1
+        text: >-
+          $a$ is even, so $a = 2k$ for some $k \in \mathbb{Z}$.
+        justification:
+          step: s2.6
+          ref: def:even
+      - id: s3.2
+        text: >-
+          $a^2 = (2k)^2 = 4k^2$.
+        justification:
+          rule: rule:algebra
+          ref: def:real-power
+      - id: s3.3
+        text: >-
+          Substituting into $a^2 = 2b^2$ yields $4k^2 = 2b^2$.
+        justification:
+          step: s2.4
+          rule: rule:substitution
+      - id: s3.4
+        text: >-
+          Dividing by $2$: $2k^2 = b^2$.
+        justification:
+          rule: rule:algebra
+        children:
+          - id: s3.4.1
+            text: >-
+              Rewrite as $2 \cdot (2k^2) = 2 \cdot b^2$.
+            justification:
+              rule: rule:algebra
+          - id: s3.4.2
+            text: >-
+              $2 \ne 0$ in $\mathbb{R}$, so multiplication by $2$ is injective and may be
+              cancelled.
+            justification:
+              ref: ax:real-field
+          - id: s3.4.3
+            text: >-
+              Therefore $2k^2 = b^2$.
+            justification:
+              rule: rule:algebra
+      - id: s3.5
+        text: >-
+          $b^2 = 2k^2$ with $k^2 \in \mathbb{Z}$, so $b^2$ is even.
+        justification:
+          ref: def:even
+      - id: s3.6
+        text: >-
+          Applying the same parity argument as in s2.6, $b$ is even: $b = 2m$.
+        justification:
+          step: s2.6
+          ref: lem:odd-square-odd
+
+  - id: s4
+    text: >-
+      So $2 \mid a$ and $2 \mid b$, which means $\gcd(a,b) \ge 2$. But we chose $a/b$ in
+      lowest terms, where $\gcd(a,b) = 1$. **Contradiction.**
+    justification:
+      rule: rule:contradiction
+    children:
+      - id: s4.1
+        text: >-
+          $a = 2k$ and $b = 2m$ for integers $k, m$.
+        justification:
+          step: s3.6
+      - id: s4.2
+        text: >-
+          Hence $2 \mid a$ and $2 \mid b$, i.e. $2$ is a common positive divisor.
+        justification:
+          ref: def:divides
+      - id: s4.3
+        text: >-
+          The greatest common divisor is at least as large as any common divisor, so
+          $\gcd(a,b) \ge 2$.
+        justification:
+          ref: def:gcd
+      - id: s4.4
+        text: >-
+          On the other hand, step s1.4 arranged $\gcd(a,b) = 1$.
+        justification:
+          step: s1.4
+          ref: def:lowest-terms
+      - id: s4.5
+        text: >-
+          $1 = \gcd(a,b) \ge 2$ says $1 \ge 2$, which is false in the ordered ring
+          $\mathbb{Z}$. This is the contradiction.
+        justification:
+          ref: ax:integer-ring
+          rule: rule:contradiction
+
+  - id: s5
+    text: >-
+      Therefore our assumption was false: $\sqrt{2}$ is not rational. $\blacksquare$
+    justification:
+      rule: rule:contradiction
+    children:
+      - id: s5.1
+        text: >-
+          The assumption "$\sqrt{2} \in \mathbb{Q}$" (step s1.2) led to a contradiction
+          (step s4.5).
+        justification:
+          step: s4.5
+      - id: s5.2
+        text: >-
+          By excluded middle, either $\sqrt{2} \in \mathbb{Q}$ or $\sqrt{2} \notin \mathbb{Q}$;
+          the first is impossible, so the second holds.
+        justification:
+          ref: ax:excluded-middle
+      - id: s5.3
+        text: >-
+          $\sqrt{2} \in \mathbb{R} \setminus \mathbb{Q}$ is exactly the statement that
+          $\sqrt{2}$ is irrational.
+        justification:
+          ref: def:irrational-number
+      - id: s5.4
+        text: >-
+          *The same argument generalises*: if $p$ is prime then $\sqrt{p}$ is irrational —
+          replace "even" throughout by "divisible by $p$", and use Euclid's lemma in place of
+          the parity computation.
+        aside: true
+        justification:
+          ref: lem:euclid-lemma

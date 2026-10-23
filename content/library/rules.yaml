@@ -1,0 +1,92 @@
+# Unfold — named inference rules
+#
+# A rule is a licensed move in a proof. Each rule is *grounded* in axioms and
+# definitions: the validator refuses a leaf step justified by a rule that does not
+# exist here, and each rule must point at nodes that resolve.
+#
+# Rules keep the proof text readable ("by algebra") while still letting the reader
+# click through to the exact axioms that make the move legitimate.
+
+rules:
+  - id: rule:contradiction
+    title: Proof by contradiction
+    summary: Assume $\neg P$, derive $Q \land \neg Q$, conclude $P$.
+    groundedIn: [ax:excluded-middle, ax:first-order-logic]
+
+  - id: rule:case-analysis
+    title: Case analysis
+    summary: If $P_1 \lor \cdots \lor P_n$ is exhaustive and each $P_i$ implies $C$, then $C$.
+    groundedIn: [ax:excluded-middle, ax:first-order-logic]
+
+  - id: rule:algebra
+    title: Field and ring algebra
+    summary: Rearranging expressions using associativity, commutativity, distributivity and cancellation in $\mathbb{Z}$, $\mathbb{Q}$ or $\mathbb{R}$.
+    groundedIn: [ax:real-field, ax:integer-ring, ax:equality]
+
+  - id: rule:arithmetic
+    title: Arithmetic of $\mathbb{N}$
+    summary: Evaluating concrete sums and products of numerals; the recursive definitions of $+$ and $\times$.
+    groundedIn: [ax:peano, ax:equality]
+
+  - id: rule:induction
+    title: Induction
+    summary: Establish a base case and an inductive step, conclude the statement for all $n$.
+    groundedIn: [ax:induction, ax:first-order-logic]
+
+  - id: rule:substitution
+    title: Substitution of equals
+    summary: Replace an expression by an equal one inside a larger expression.
+    groundedIn: [ax:equality]
+
+  - id: rule:instantiation
+    title: Universal instantiation
+    summary: From $\forall x\, P(x)$ infer $P(t)$ for a specific term $t$.
+    groundedIn: [ax:first-order-logic]
+
+  - id: rule:generalization
+    title: Universal generalization
+    summary: From a derivation of $P(n)$ for an arbitrary $n$, infer $\forall n\, P(n)$.
+    groundedIn: [ax:first-order-logic]
+
+  - id: rule:set-builder
+    title: Set formation
+    summary: >-
+      Form $\{x \in A : P(x)\}$ and reason about its membership.
+    groundedIn: [ax:naive-set, ax:first-order-logic]
+
+  - id: rule:construction
+    title: Explicit construction
+    summary: >-
+      An object picked out by an explicit deterministic rule from objects already in hand
+      exists and is unique; we may name it and reason about it.
+    groundedIn: [ax:naive-set, ax:equality, ax:first-order-logic]
+
+  - id: rule:geometric-construction
+    title: Geometric construction and rigid motion
+    summary: Place, copy, rotate and translate figures in the plane; congruent copies exist.
+    groundedIn: [ax:euclidean-plane]
+
+  - id: rule:area-additivity
+    title: Area additivity
+    summary: Decompose a region into non-overlapping pieces and add their areas.
+    groundedIn: [ax:area, ax:euclidean-plane]
+
+  - id: rule:counting
+    title: Finite counting
+    summary: Counting elements of finite sets, and the fact that a proper subset of a finite set is strictly smaller.
+    groundedIn: [ax:peano, ax:naive-set]
+
+  - id: rule:decimal-estimate
+    title: Decimal tail estimate
+    summary: Bounding $\sum_{j>k} d_j 10^{-j}$ by $10^{-k}$ using the geometric series and completeness.
+    groundedIn: [ax:real-field, lem:geometric-series-tail]
+
+  - id: rule:composition
+    title: Closure under composition
+    summary: Combining computable procedures (including running one with a fixed input) yields a computable procedure.
+    groundedIn: [ax:church-turing, def:computable-function]
+
+  - id: rule:diagonal-construction
+    title: Diagonal construction
+    summary: Define an object that differs from the $n$-th member of a given list in its $n$-th component.
+    groundedIn: [ax:naive-set, rule:set-builder]

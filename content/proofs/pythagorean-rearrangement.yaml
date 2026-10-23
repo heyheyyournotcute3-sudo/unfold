@@ -1,0 +1,378 @@
+id: pythagorean-rearrangement
+title: >-
+  The Pythagorean theorem (rearrangement proof)
+kind: theorem
+difficulty: 2
+statement: >-
+  If a right triangle has legs of length $a$ and $b$ and hypotenuse of length $c$, then
+  $a^2 + b^2 = c^2$.
+summary: >-
+  Put four copies of the triangle inside a square of side $a+b$ in two different ways. In one
+  arrangement the leftover space is two squares, of areas $a^2$ and $b^2$; in the other it is a
+  single square of area $c^2$. Same outer square, same four triangles, so the leftovers are equal.
+tags: [geometry, visual, classics]
+prerequisites:
+  - def:right-triangle
+  - def:square
+  - def:congruent
+  - ax:area
+  - ax:euclidean-plane
+  - lem:triangle-angle-sum
+  - lem:quadrilateral-angles
+lean:
+  statement: >-
+    theorem EuclideanGeometry.dist_sq_eq_dist_sq_add_dist_sq_iff_angle_eq_pi_div_two
+      (p1 p2 p3 : EuclideanGeometry.Pt V) :
+      dist p1 p3 ^ 2 = dist p1 p2 ^ 2 + dist p2 p3 ^ 2 ↔ ∠ p1 p2 p3 = π / 2
+  name: EuclideanGeometry.dist_sq_eq_dist_sq_add_dist_sq_iff_angle_eq_pi_div_two
+  file: Mathlib/Geometry/Euclidean/Triangle.lean
+  status: candidate
+  note: >-
+    Mathlib derives this from the law of cosines in an inner-product space, not by dissection.
+    The dissection argument below is not formalised there; the link is the closest statement.
+attribution: >-
+  The two-arrangement dissection is usually traced to the Chinese *Zhou Bi Suan Jing* and to
+  Bhaskara's *Bija Ganita*; the single-figure version is often drawn as a Persian or Indian
+  "look at the diagram" proof.
+
+steps:
+  - id: s1
+    text: >-
+      Fix a right triangle $T$ with legs $a$ and $b$, hypotenuse $c$, and acute angles $\alpha$
+      (opposite the side of length $a$) and $\beta$ (opposite the side of length $b$). Then
+      $\alpha + \beta = 90^\circ$.
+    justification:
+      ref: def:right-triangle
+    children:
+      - id: s1.1
+        text: >-
+          $T$ has one right angle, by hypothesis; the side opposite it is the hypotenuse $c$,
+          and the other two sides are the legs $a$ and $b$.
+        justification:
+          ref: def:right-triangle
+      - id: s1.2
+        text: >-
+          The three interior angles of $T$ sum to $180^\circ$: $\alpha + \beta + 90^\circ = 180^\circ$.
+        justification:
+          ref: lem:triangle-angle-sum
+        children:
+          - id: s1.2.1
+            text: >-
+              Through the vertex carrying the right angle, draw the line $\ell$ parallel to the
+              hypotenuse. This is possible and unique by the parallel postulate.
+            justification:
+              ref: ax:euclidean-plane
+          - id: s1.2.2
+            text: >-
+              Each leg of $T$ is a transversal cutting the two parallel lines, so the alternate
+              interior angles are equal: $\alpha$ and $\beta$ are copied to the two sides of the
+              right angle along $\ell$.
+            justification:
+              ref: ax:euclidean-plane
+          - id: s1.2.3
+            text: >-
+              The three angles now fill a straight angle at that vertex, and a straight angle is
+              two right angles, i.e. $180^\circ$.
+            justification:
+              ref: def:right-angle
+      - id: s1.3
+        text: >-
+          Subtracting, $\alpha + \beta = 180^\circ - 90^\circ = 90^\circ$.
+        justification:
+          rule: rule:algebra
+      - id: s1.4
+        text: >-
+          By rigid motion we may produce as many pairwise congruent copies of $T$ as we like,
+          placed anywhere and in any orientation. We will use exactly four.
+        justification:
+          rule: rule:geometric-construction
+          note: Rigid motions preserve side lengths and angles, so copies are congruent to $T$.
+
+  - id: s2
+    text: >-
+      **Arrangement A.** Inside a square $S$ of side $a + b$, place four copies of $T$ so that
+      the uncovered region is *two* squares: one of side $a$, one of side $b$.
+    justification:
+      rule: rule:geometric-construction
+    children:
+      - id: s2.1
+        text: >-
+          Let $S$ be the square of side $a+b$. Its area is $(a+b)^2$.
+        justification:
+          ref: ax:area
+      - id: s2.2
+        text: >-
+          Place a square $S_a$ of side $a$ flush with two sides of $S$ in one corner, and a
+          square $S_b$ of side $b$ flush with two sides in the diagonally opposite corner. Both
+          fit, since $a \le a+b$ and $b \le a+b$.
+        justification:
+          rule: rule:geometric-construction
+        children:
+          - id: s2.2.1
+            text: >-
+              In coordinates, take $S = [0, a+b] \times [0, a+b]$, $S_a = [0,a] \times [b, a+b]$
+              and $S_b = [a, a+b] \times [0, b]$. These are disjoint and both lie inside $S$.
+            justification:
+              rule: rule:geometric-construction
+      - id: s2.3
+        text: >-
+          The part of $S$ not covered by $S_a \cup S_b$ is the union of two rectangles,
+          $R_1 = [0,a] \times [0,b]$ and $R_2 = [a, a+b] \times [b, a+b]$, with sides $a$ and $b$.
+        justification:
+          rule: rule:algebra
+        children:
+          - id: s2.3.1
+            text: >-
+              Area check: $(a+b)^2 - a^2 - b^2 = (a^2 + 2ab + b^2) - a^2 - b^2 = 2ab$, which is
+              exactly the combined area of two $a \times b$ rectangles.
+            justification:
+              rule: rule:algebra
+              note: Uses $(a+b)^2 = a^2 + 2ab + b^2$, itself distributivity in $\mathbb{R}$.
+      - id: s2.4
+        text: >-
+          Cut each rectangle along a diagonal. Each half is a right triangle whose two legs are
+          $a$ and $b$ with the right angle between them, so each half is congruent to $T$ by SAS.
+        justification:
+          ref: def:congruent
+        children:
+          - id: s2.4.1
+            text: >-
+              A diagonal of a rectangle splits its two right angles in the corners it joins; the
+              triangle formed has two sides of lengths $a$ and $b$ meeting at a right angle
+              (a corner of the rectangle).
+            justification:
+              ref: def:right-angle
+          - id: s2.4.2
+            text: >-
+              $T$ also has sides $a$ and $b$ meeting at its right angle. Two triangles with two
+              pairs of equal sides and equal included angle are congruent (SAS).
+            justification:
+              ref: ax:euclidean-plane
+            children:
+              - id: s2.4.2.1
+                text: >-
+                  The included angle in each half-rectangle is a corner of the rectangle, hence a
+                  right angle; and all right angles are congruent to one another.
+                justification:
+                  ref: def:right-angle
+              - id: s2.4.2.2
+                text: >-
+                  SAS is one of the congruence criteria assumed for the Euclidean plane: equal two
+                  sides and the angle between them determines the triangle up to rigid motion.
+                justification:
+                  ref: ax:euclidean-plane
+              - id: s2.4.2.3
+                text: >-
+                  Rigid motions exist for any pair of congruent positions and preserve all lengths
+                  and angles, which is what “four copies of the same triangle” means.
+                justification:
+                  rule: rule:geometric-construction
+      - id: s2.5
+        text: >-
+          So arrangement A covers $S$ with four copies of $T$ (disjoint except along cut
+          segments), leaving exactly $S_a$ and $S_b$ uncovered. The uncovered area is
+          $a^2 + b^2$.
+        justification:
+          ref: ax:area
+
+  - id: s3
+    text: >-
+      **Arrangement B.** Inside the *same* square $S$, place the same four copies of $T$ in
+      pinwheel fashion, one at each corner. The uncovered region is a *single* quadrilateral $Q$
+      with four sides of length $c$ and four right angles — a square of area $c^2$.
+    justification:
+      rule: rule:geometric-construction
+    widget:
+      id: pythagoras-rearrange
+      caption: >-
+        Drag the handle (or press the arrow keys) to slide continuously between arrangement A
+        and arrangement B. The four triangles move rigidly; only the leftover region changes
+        shape, from $a^2 + b^2$ to $c^2$.
+    children:
+      - id: s3.1
+        text: >-
+          At each corner of $S$, place a copy of $T$ with its two legs lying along the two sides
+          of $S$ that meet there, alternating which leg ($a$ or $b$) lies on which side as you go
+          round $S$.
+        justification:
+          rule: rule:geometric-construction
+        children:
+          - id: s3.1.1
+            text: >-
+              In coordinates the four copies have vertices
+              $(0,0),(a,0),(0,b)$; $\;$ $(a,0),(a+b,0),(a+b,a)$; $\;$
+              $(a+b,a),(a+b,a+b),(b,a+b)$; $\;$ and $(0,b),(b,a+b),(0,a+b)$.
+              Each is a right triangle with legs $a$ and $b$, hence congruent to $T$.
+            justification:
+              step: s2.4
+          - id: s3.1.2
+            text: >-
+              These four triangles are pairwise disjoint except along boundary segments, and all
+              lie inside $S$.
+            justification:
+              rule: rule:area-additivity
+      - id: s3.2
+        text: >-
+          The uncovered region $Q$ is the quadrilateral with vertices $(a,0)$, $(a+b,a)$,
+          $(b,a+b)$, $(0,b)$ — the four inner endpoints of the legs.
+        justification:
+          rule: rule:geometric-construction
+      - id: s3.3
+        text: >-
+          Each side of $Q$ is the hypotenuse of one of the four copies, and congruent triangles
+          have equal corresponding sides, so every side of $Q$ has length $c$.
+        justification:
+          ref: def:congruent
+      - id: s3.4
+        text: >-
+          Each interior angle of $Q$ is a right angle.
+        justification:
+          ref: lem:triangle-angle-sum
+        children:
+          - id: s3.4.1
+            text: >-
+              Consider a vertex of $Q$ lying on a side of $S$, say $(a,0)$ on the bottom edge.
+              Along that straight edge the angle $180^\circ$ is filled by three pieces: the angle
+              of the bottom-left triangle at $(a,0)$, the interior angle of $Q$ at $(a,0)$, and
+              the angle of the bottom-right triangle at $(a,0)$.
+            justification:
+              ref: def:right-angle
+          - id: s3.4.2
+            text: >-
+              The bottom-left copy has its leg of length $a$ along the bottom edge, so its angle
+              at $(a,0)$ is the angle opposite the leg $b$, namely $\beta$. The bottom-right copy
+              has its leg of length $b$ along the bottom edge, so its angle at $(a,0)$ is the
+              angle opposite the leg $a$, namely $\alpha$.
+            justification:
+              step: s1.1
+              rule: rule:instantiation
+          - id: s3.4.3
+            text: >-
+              Hence $\beta + \angle Q + \alpha = 180^\circ$, so
+              $\angle Q = 180^\circ - (\alpha + \beta) = 180^\circ - 90^\circ = 90^\circ$, using
+              step s1.3.
+            justification:
+              step: s1.3
+              rule: rule:algebra
+          - id: s3.4.4
+            text: >-
+              The same computation applies at each of the four vertices of $Q$ by rotational
+              symmetry of the construction.
+            justification:
+              rule: rule:generalization
+      - id: s3.5
+        text: >-
+          A quadrilateral with four congruent sides is a rhombus; a rhombus with one right angle
+          has four right angles and is therefore a square. So $Q$ is the square of side $c$, of
+          area $c^2$.
+        justification:
+          ref: lem:quadrilateral-angles
+        children:
+          - id: s3.5.1
+            text: >-
+              Opposite angles of a rhombus are equal and adjacent angles are supplementary, so a
+              single right angle forces all four to be right angles.
+            justification:
+              ref: lem:quadrilateral-angles
+          - id: s3.5.2
+            text: >-
+              Four congruent sides plus four right angles is the definition of a square, and a
+              square of side $c$ has area $c^2$.
+            justification:
+              ref: def:square
+    checkpoint:
+      id: cp1
+      question: >-
+        Step s3.3 already shows $Q$ has four sides of length $c$. Why is step s3.4 (the right
+        angles) still needed?
+      options:
+        - >-
+          For symmetry; either argument alone would do.
+        - >-
+          Because a quadrilateral with four equal sides is only a *rhombus*, and a sheared
+          rhombus with side $c$ has area $c^2 \sin\theta < c^2$. Only the right angle pins the
+          area down to $c^2$.
+        - >-
+          Because we need right angles to apply SAS.
+        - >-
+          Because otherwise $Q$ might not be convex.
+      answer: 1
+      explanation: >-
+        This is the step that is most often skipped in "obvious" picture proofs, and skipping it
+        is a genuine gap. A rhombus with side $c$ and angle $\theta$ has area $c^2\sin\theta$,
+        which equals $c^2$ only when $\theta = 90^\circ$. Without s3.4 the argument would prove
+        $a^2 + b^2 = c^2 \sin\theta$ for some unspecified $\theta$.
+
+  - id: s4
+    text: >-
+      Both arrangements fill the same square $S$ with the same four triangles. Subtracting the
+      (equal) area of the triangles from the (equal) area of $S$, the uncovered areas must be
+      equal: $a^2 + b^2 = c^2$.
+    justification:
+      rule: rule:area-additivity
+    children:
+      - id: s4.1
+        text: >-
+          In arrangement A: $\operatorname{area}(S) = 4\,\operatorname{area}(T) + (a^2 + b^2)$,
+          because $S$ is the disjoint union of the four triangles, $S_a$ and $S_b$.
+        justification:
+          step: s2.5
+          ref: ax:area
+      - id: s4.2
+        text: >-
+          In arrangement B: $\operatorname{area}(S) = 4\,\operatorname{area}(T) + c^2$, because
+          $S$ is the disjoint union of the four triangles and $Q$.
+        justification:
+          step: s3.5
+          ref: ax:area
+      - id: s4.3
+        text: >-
+          The four triangles are congruent to $T$ in both arrangements, so
+          $4\,\operatorname{area}(T)$ is the same real number in both equations — call it $4\Delta$.
+          We never need to know that $\Delta = ab/2$.
+        justification:
+          ref: def:congruent
+      - id: s4.4
+        text: >-
+          Two quantities equal to the same quantity are equal to each other:
+          $a^2 + b^2 = (a+b)^2 - 4\Delta = c^2$.
+        justification:
+          ref: ax:equality
+          rule: rule:algebra
+
+  - id: s5
+    text: >-
+      Therefore $a^2 + b^2 = c^2$ for the arbitrary right triangle $T$ — hence for every right
+      triangle. $\blacksquare$
+    justification:
+      rule: rule:generalization
+    children:
+      - id: s5.1
+        text: >-
+          $a^2 + b^2 = c^2$ (step s4.4).
+        justification:
+          step: s4.4
+      - id: s5.2
+        text: >-
+          Nothing in the argument used any property of $T$ beyond "a right triangle with legs
+          $a,b$ and hypotenuse $c$", and $a, b > 0$ were arbitrary, so the conclusion holds for
+          every right triangle.
+        justification:
+          rule: rule:generalization
+      - id: s5.3
+        text: >-
+          *The converse* — if $a^2 + b^2 = c^2$ then the angle opposite $c$ is right — follows
+          from the law of cosines, $c^2 = a^2 + b^2 - 2ab\cos\gamma$, since $\cos\gamma = 0$
+          forces $\gamma = 90^\circ$. Not unfolded here.
+        aside: true
+        justification:
+          ref: lem:triangle-angle-sum
+      - id: s5.4
+        text: >-
+          *Why this proof is a favourite*: it is a **conservation** argument. Nothing is computed
+          about areas of triangles; the entire content is that rearranging the same pieces inside
+          the same box cannot change the amount of leftover space. That is `ax:area` doing all
+          the work.
+        aside: true
+        justification:
+          ref: ax:area

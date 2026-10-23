@@ -1,0 +1,328 @@
+id: primes-infinite
+title: >-
+  There are infinitely many primes
+kind: theorem
+difficulty: 1
+statement: >-
+  The set $\{p \in \mathbb{N} : p \text{ is prime}\}$ is infinite. Equivalently, for every
+  $n \in \mathbb{N}$ there is a prime larger than $n$.
+summary: >-
+  Take any finite list of primes, multiply them together and add $1$. The result is divisible
+  by some prime, and that prime cannot be on the list — it would have to divide $1$.
+tags: [number-theory, primes, contradiction, classics]
+prerequisites:
+  - def:prime
+  - def:divides
+  - def:finite-set
+  - lem:prime-factor-exists
+  - lem:divides-linear-combination
+  - lem:divides-transitive
+  - lem:well-ordering
+lean:
+  statement: >-
+    theorem Nat.exists_infinite_primes (n : ℕ) : ∃ p, n ≤ p ∧ Nat.Prime p
+  name: Nat.exists_infinite_primes
+  file: Mathlib/NumberTheory/Bertrand.lean
+  status: candidate
+  note: >-
+    Mathlib states the result as "there is a prime at least $n$", which is the form needed for
+    the infinite descent. Not machine-checked against a pinned commit.
+attribution: >-
+  Euclid, *Elements* IX, Proposition 20. Euclid phrases it as "prime numbers are more than any
+  assigned multitude of prime numbers" — no actual infinite set is invoked.
+
+steps:
+  - id: s1
+    text: >-
+      Suppose, for contradiction, that there are only finitely many primes, and that
+      $p_1 < p_2 < \cdots < p_n$ is the complete list of them.
+    justification:
+      rule: rule:contradiction
+      note: Temporary assumption, discharged at step s6.
+    widget:
+      id: euclid-primes
+      caption: >-
+        Pick any finite set of primes. Euclid's number $N$ is built from them, and its smallest
+        prime factor is highlighted — always outside the chosen set.
+    checkpoint:
+      id: cp1
+      question: >-
+        Euclid's argument starts from *an arbitrary finite list*. Why is that stronger than
+        starting from "the primes are $2, 3, 5$"?
+      options:
+        - >-
+          It is not stronger; it is just more general notation.
+        - >-
+          Because the list is arbitrary, the contradiction destroys **every** finite list at
+          once — there is no special list left to try.
+        - >-
+          Because finite lists are easier to multiply.
+        - >-
+          Because we need $p_1 < p_2 < \cdots < p_n$ for the ordering to matter.
+      answer: 1
+      explanation: >-
+        This is the shape of a universal negation. To prove "no finite list contains all the
+        primes" you must refute an arbitrary list, not a convenient one. The ordering
+        $p_1 < \cdots < p_n$ is used nowhere in the argument — it is just notation for a finite
+        set.
+    children:
+      - id: s1.1
+        text: >-
+          Recall $p$ is prime iff $p \ge 2$ and the only positive divisors of $p$ are $1$ and
+          $p$ itself.
+        justification:
+          ref: def:prime
+      - id: s1.2
+        text: >-
+          "There are only finitely many primes" means the set $P = \{p \in \mathbb{N} : p
+          \text{ prime}\}$ is finite, so for some $n$ there is a bijection between $P$ and
+          $\{1, \dots, n\}$ — i.e. $P = \{p_1, \dots, p_n\}$.
+        justification:
+          ref: def:finite-set
+      - id: s1.3
+        text: >-
+          The case $n = 0$ (no primes at all) is already impossible: $2 \ge 2$ and its only
+          positive divisors are $1$ and $2$, so $2$ is prime. We may assume $n \ge 1$.
+        justification:
+          ref: def:prime
+          rule: rule:case-analysis
+      - id: s1.4
+        text: >-
+          Every prime on the list satisfies $p_i \ge 2$.
+        justification:
+          ref: def:prime
+          rule: rule:instantiation
+
+  - id: s2
+    text: >-
+      Form the number $N = p_1 p_2 \cdots p_n + 1$.
+    justification:
+      rule: rule:construction
+    children:
+      - id: s2.1
+        text: >-
+          The product $\Pi = p_1 p_2 \cdots p_n$ is a natural number: $\mathbb{N}$ is closed
+          under multiplication, and a product of finitely many naturals is defined by
+          recursion on the length of the list.
+        justification:
+          ref: ax:peano
+      - id: s2.2
+        text: >-
+          Adding the successor, $N = \Pi + 1 \in \mathbb{N}$.
+        justification:
+          ref: ax:peano
+      - id: s2.3
+        text: >-
+          $N$ is well defined independently of the order in which we multiply the $p_i$:
+          multiplication in $\mathbb{N}$ is commutative and associative.
+        justification:
+          rule: rule:algebra
+
+  - id: s3
+    text: >-
+      $N > 1$, so $N$ has a prime divisor; call it $q$.
+    justification:
+      ref: lem:prime-factor-exists
+    children:
+      - id: s3.1
+        text: >-
+          Since $n \ge 1$, the product contains at least the factor $p_1 \ge 2$, so
+          $\Pi \ge 2$ and $N = \Pi + 1 \ge 3 > 1$.
+        justification:
+          step: s1.4
+          rule: rule:algebra
+      - id: s3.2
+        text: >-
+          Every natural number $\ge 2$ has a prime factor. Here is that argument in full.
+        justification:
+          ref: lem:prime-factor-exists
+        children:
+          - id: s3.2.1
+            text: >-
+              Let $S = \{d \in \mathbb{N} : d \ge 2 \text{ and } d \mid N\}$. This set is
+              nonempty because $N \mid N$ and $N \ge 3 \ge 2$.
+            justification:
+              rule: rule:set-builder
+              ref: def:divides
+          - id: s3.2.2
+            text: >-
+              $S \subseteq \mathbb{N}$ is nonempty, so by the well-ordering principle it has a
+              least element; call it $q$.
+            justification:
+              ref: lem:well-ordering
+          - id: s3.2.3
+            text: >-
+              $q$ is prime. Suppose not: then $q$ is composite, so $q = ab$ with
+              $1 < a < q$ and $1 < b < q$.
+            justification:
+              ref: def:prime
+              rule: rule:contradiction
+            children:
+              - id: s3.2.3.1
+                text: >-
+                  $a \mid q$ and $q \mid N$, so $a \mid N$ by transitivity of divisibility.
+                justification:
+                  ref: lem:divides-transitive
+              - id: s3.2.3.2
+                text: >-
+                  Also $a \ge 2$, so $a \in S$ — but $a < q$, contradicting the minimality of
+                  $q$ established in s3.2.2.
+                justification:
+                  step: s3.2.2
+                  rule: rule:contradiction
+          - id: s3.2.4
+            text: >-
+              Therefore $q$ is prime, and $q \mid N$ since $q \in S$.
+            justification:
+              ref: def:prime
+
+  - id: s4
+    text: >-
+      $q$ is prime, so by our assumption that the list was complete, $q = p_i$ for some
+      $i \in \{1, \dots, n\}$.
+    justification:
+      step: s1.2
+      rule: rule:instantiation
+    children:
+      - id: s4.1
+        text: >-
+          $q$ is prime (step s3.2.4), so $q \in P$.
+        justification:
+          step: s3.2.4
+      - id: s4.2
+        text: >-
+          The assumption s1.2 says $P = \{p_1, \dots, p_n\}$, so every element of $P$ is one of
+          the listed primes.
+        justification:
+          step: s1.2
+      - id: s4.3
+        text: >-
+          Hence $q = p_i$ for some index $i$ with $1 \le i \le n$.
+        justification:
+          rule: rule:instantiation
+
+  - id: s5
+    text: >-
+      But $p_i \mid N$ and $p_i \mid p_1 p_2 \cdots p_n$, so $p_i$ divides their difference
+      $N - p_1 p_2 \cdots p_n = 1$. No prime divides $1$, since every prime is at least $2$.
+    justification:
+      ref: lem:divides-linear-combination
+    checkpoint:
+      id: cp2
+      question: >-
+        **What happens if $p$ were in the list?** Say $q = p_i$ divides $N$. Where exactly does
+        that break?
+      options:
+        - >-
+          It would make $N$ composite, which is not allowed.
+        - >-
+          It forces $p_i$ to divide both $N$ and the product $p_1 \cdots p_n$, hence to divide
+          their difference $1$ — impossible for a prime.
+        - >-
+          It would mean $N = p_i$, so $p_1 \cdots p_n = 0$.
+        - >-
+          Nothing breaks; we would simply continue with the next prime.
+      answer: 1
+      explanation: >-
+        This is the hinge of the whole proof. Divisibility is closed under integer
+        combinations (`lem:divides-linear-combination`): $d \mid x$ and $d \mid y$ imply
+        $d \mid (x - y)$. With $x = N$ and $y = \Pi$ we get $p_i \mid (N - \Pi) = 1$. But
+        $p_i \mid 1$ means $1 = p_i k$, and since $p_i \ge 2$ this forces $0 < k < 1$ with
+        $k \in \mathbb{Z}$, impossible. Option 1 confuses things: $N$ being composite is
+        perfectly fine — e.g. $2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 + 1 = 30031
+        = 59 \times 509$.
+    children:
+      - id: s5.1
+        text: >-
+          $q \mid N$ (step s3.2.4) and $q = p_i$ (step s4.3), so $p_i \mid N$.
+        justification:
+          step: s4.3
+          rule: rule:substitution
+      - id: s5.2
+        text: >-
+          $p_i \mid \Pi = p_1 p_2 \cdots p_n$, because $p_i$ is literally one of the factors.
+        justification:
+          ref: def:divides
+        children:
+          - id: s5.2.1
+            text: >-
+              Write $\Pi = p_i \cdot M$ where $M = \prod_{j \ne i} p_j$ is the product of the
+              remaining factors (an empty product is $1$, and $M \in \mathbb{N}$ either way).
+            justification:
+              rule: rule:algebra
+          - id: s5.2.2
+            text: >-
+              Then $\Pi = p_i \cdot M$ with $M \in \mathbb{Z}$, which is precisely the statement
+              $p_i \mid \Pi$.
+            justification:
+              ref: def:divides
+      - id: s5.3
+        text: >-
+          Divisibility is preserved under integer combinations, so $p_i \mid (N - \Pi)$.
+          And $N - \Pi = (\Pi + 1) - \Pi = 1$.
+        justification:
+          ref: lem:divides-linear-combination
+          step: s2.2
+      - id: s5.4
+        text: >-
+          So $p_i \mid 1$: there is $k \in \mathbb{Z}$ with $1 = p_i k$. Since $p_i \ge 2 > 0$
+          and $1 > 0$, we get $k > 0$, hence $k \ge 1$, hence $1 = p_i k \ge 2 \cdot 1 = 2$.
+        justification:
+          ref: def:divides
+          rule: rule:algebra
+      - id: s5.5
+        text: >-
+          $1 \ge 2$ is false in the ordered ring $\mathbb{Z}$. Contradiction.
+        justification:
+          ref: ax:integer-ring
+          rule: rule:contradiction
+
+  - id: s6
+    text: >-
+      The assumption that the primes form a finite list leads to a contradiction, so there are
+      infinitely many primes. $\blacksquare$
+    justification:
+      rule: rule:contradiction
+    children:
+      - id: s6.1
+        text: >-
+          The supposition "the primes are exactly $p_1, \dots, p_n$" (step s1) implies a
+          contradiction (step s5.5).
+        justification:
+          step: s5.5
+      - id: s6.2
+        text: >-
+          By excluded middle the supposition is false: no finite list $\{p_1, \dots, p_n\}$
+          equals the set of all primes.
+        justification:
+          ref: ax:excluded-middle
+      - id: s6.3
+        text: >-
+          That is exactly the negation of "$P$ is finite", so $P$ is infinite.
+        justification:
+          ref: def:finite-set
+      - id: s6.4
+        text: >-
+          Since $n$ was arbitrary, restating s6.2: for every $n$ and every list of $n$ primes
+          there is a prime outside it. Taking the list to be all primes $\le m$ yields the
+          equivalent form "for every $m$ there is a prime $> m$".
+        justification:
+          ref: def:prime
+          rule: rule:generalization
+      - id: s6.5
+        text: >-
+          *A common misreading*: the proof does **not** claim $N = p_1 \cdots p_n + 1$ is prime.
+          It claims $N$ has a prime factor missing from the list. With
+          $\{2,3,5,7,11,13\}$ the number $N = 30031 = 59 \times 509$ is composite, and *both*
+          new primes are off the list.
+        aside: true
+        justification:
+          ref: def:prime
+      - id: s6.6
+        text: >-
+          *A second proof of the same fact*: Euler. If the primes were $p_1,\dots,p_n$ then
+          $\prod_i (1 - p_i^{-1})^{-1} = \sum_{k \ge 1} k^{-1}$ diverges, but the left side is a
+          finite product of finite numbers. Sketched here, not unfolded.
+        aside: true
+        justification:
+          ref: ax:real-field

@@ -1,0 +1,146 @@
+# Unfold — axiom library
+#
+# Axioms are the bedrock of the dependency graph: they have no prerequisites and
+# no justification of their own. The build-time validator requires that *every*
+# leaf step of *every* proof resolves, transitively, to one of these nodes or to
+# a definition. If you add a proof whose deepest step rests on something that is
+# not listed here, the build fails.
+#
+# Nothing here is meant to be a claim that these are the only possible
+# foundations; they are the foundations this library has chosen to state.
+
+nodes:
+  - id: ax:first-order-logic
+    kind: axiom
+    title: Classical first-order logic
+    statement: We reason in classical first-order logic with equality, quantifiers, and the usual connectives.
+    body: >-
+      Formulas are built from atomic formulas using $\neg, \land, \lor, \to, \leftrightarrow,
+      \forall, \exists$. The usual introduction and elimination rules are admissible:
+      from $\forall x\, P(x)$ we may infer $P(t)$ for any term $t$ (universal
+      instantiation), and a derivation of $P(x)$ from no assumptions on $x$ yields
+      $\forall x\, P(x)$ (universal generalization).
+    tags: [logic, foundations]
+
+  - id: ax:excluded-middle
+    kind: axiom
+    title: Law of excluded middle
+    statement: For every proposition $P$, either $P$ holds or $\neg P$ holds.
+    body: >-
+      This is what licenses *proof by contradiction*: to prove $P$, assume $\neg P$
+      and derive an absurdity (a statement of the form $Q \land \neg Q$). It also
+      licenses *case analysis*: if $P \lor \neg P$ and both cases yield $C$, then $C$.
+      Constructive readers may note that everything in this library except this axiom
+      is intuitionistically acceptable.
+    tags: [logic, foundations]
+
+  - id: ax:equality
+    kind: axiom
+    title: Axioms of equality
+    statement: Equality is reflexive, symmetric, transitive, and substitutive.
+    body: >-
+      $a = a$; if $a = b$ then $b = a$; if $a = b$ and $b = c$ then $a = c$; and if
+      $a = b$ then $P(a) \leftrightarrow P(b)$ for every predicate $P$ (Leibniz's law).
+      Substitution instances of Leibniz's law are what we mean when we say "replace $a$
+      by $b$ in an expression".
+    tags: [logic, foundations]
+
+  - id: ax:peano
+    kind: axiom
+    title: Peano axioms for the natural numbers
+    statement: $\mathbb{N} = \{0,1,2,\dots\}$ with a successor function satisfying the Peano axioms.
+    body: >-
+      $0 \in \mathbb{N}$; every $n \in \mathbb{N}$ has a successor $n+1 \in \mathbb{N}$;
+      $0$ is not a successor; distinct numbers have distinct successors; and the
+      induction principle (stated separately as `ax:induction`) holds. Addition and
+      multiplication are defined recursively from successor, from which the familiar
+      associative, commutative and distributive laws are proved.
+    tags: [arithmetic, foundations]
+
+  - id: ax:induction
+    kind: axiom
+    title: Principle of mathematical induction
+    statement: If $P(0)$ holds and $P(k) \to P(k+1)$ for every $k \in \mathbb{N}$, then $P(n)$ holds for all $n \in \mathbb{N}$.
+    body: >-
+      Equivalently: any subset $S \subseteq \mathbb{N}$ containing $0$ and closed under
+      successor is all of $\mathbb{N}$. Variants with a different base point (e.g. $n \ge 1$)
+      follow by re-indexing. Strong induction and the well-ordering principle
+      (`lem:well-ordering`) are equivalent to this axiom over the other Peano axioms.
+    tags: [arithmetic, foundations]
+
+  - id: ax:integer-ring
+    kind: axiom
+    title: The integers form a discretely ordered ring
+    statement: $\mathbb{Z}$ extends $\mathbb{N}$ to a commutative ring with a total order compatible with addition and multiplication.
+    body: >-
+      $\mathbb{Z} = \{0, \pm 1, \pm 2, \dots\}$ with the usual addition and multiplication
+      (commutative ring with unit $1 \ne 0$), a total order $\le$ such that $a \le b$
+      implies $a + c \le b + c$, and $0 \le a, 0 \le b$ implies $0 \le ab$. Trichotomy:
+      exactly one of $a < b$, $a = b$, $b < a$ holds. The order is *discrete*: there is
+      no integer strictly between $n$ and $n+1$.
+    tags: [arithmetic, foundations]
+
+  - id: ax:real-field
+    kind: axiom
+    title: The real numbers are a complete ordered field
+    statement: $\mathbb{R}$ satisfies the field axioms, the order axioms, and the completeness axiom.
+    body: >-
+      *Field*: addition and multiplication are commutative and associative, distribute,
+      have identities $0$ and $1 \ne 0$, and every element has an additive inverse while
+      every nonzero element has a multiplicative inverse. *Order*: a total order with
+      $a \le b \Rightarrow a + c \le b + c$ and $0 \le a, 0 \le b \Rightarrow 0 \le ab$.
+      *Completeness*: every nonempty set of reals that is bounded above has a least upper
+      bound. Completeness is what makes infinite decimal expansions denote actual real
+      numbers (the partial sums form a bounded increasing sequence).
+    tags: [analysis, foundations]
+
+  - id: ax:euclidean-plane
+    kind: axiom
+    title: Euclidean plane axioms
+    statement: We assume incidence, betweenness, congruence (including SAS), and the parallel postulate for the Euclidean plane.
+    body: >-
+      Points and lines satisfy the usual incidence and betweenness axioms; angles and
+      segments admit a notion of congruence satisfying the SAS criterion; and given a
+      line $\ell$ and a point $P \notin \ell$ there is exactly one line through $P$
+      parallel to $\ell$. Rigid motions (translations, rotations, reflections) exist and
+      preserve congruence, which is what lets us speak of "four copies of the same
+      triangle" placed anywhere in the plane.
+    tags: [geometry, foundations]
+
+  - id: ax:area
+    kind: axiom
+    title: Area is a finitely additive, motion-invariant measure
+    statement: Every polygonal region has a nonnegative area; congruent regions have equal area; the area of a finite union of non-overlapping regions is the sum of their areas.
+    body: >-
+      We also take as given that a square of side $s$ has area $s^2$, and that a
+      rectangle of sides $a, b$ has area $ab$ (the latter follows from the former by
+      dissection). "Non-overlapping" means intersecting only along boundary segments.
+      These are exactly the properties used in dissection (rearrangement) proofs.
+    tags: [geometry, foundations]
+
+  - id: ax:naive-set
+    kind: axiom
+    title: Naive set existence
+    statement: >-
+      Given a set $A$ and a predicate $P$, the collection $\{x \in A : P(x)\}$ is a set; finite products, power sets and function sets exist.
+    body: >-
+      This is restricted comprehension (separation), which is enough for everything in
+      this library and avoids Russell's paradox because we only ever separate *out of a
+      set we already have*. We also assume: a function $f : A \to B$ is a set of ordered
+      pairs with exactly one output per input; $B^A$ (the set of functions $A \to B$) and
+      $\mathcal{P}(A)$ exist; and $\mathbb{N}, \mathbb{Z}, \mathbb{Q}, \mathbb{R}$ are sets.
+    tags: [set-theory, foundations]
+
+  - id: ax:church-turing
+    kind: axiom
+    title: Church–Turing thesis
+    statement: A function on finite strings is effectively computable by an algorithm if and only if it is computable by a Turing machine.
+    body: >-
+      This is a *thesis*, not a theorem: it identifies the informal notion "there is a
+      mechanical procedure" with the formal notion "there is a Turing machine". It is
+      universally accepted, and every known model of computation (register machines,
+      $\lambda$-calculus, real programming languages) computes exactly the same
+      functions. The undecidability of the halting problem is a theorem *about Turing
+      machines*; the thesis is what lets us read it as a theorem about programs and
+      algorithms in general.
+    tags: [computation, foundations]

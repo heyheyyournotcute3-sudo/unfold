@@ -1,0 +1,442 @@
+id: euler-polyhedron
+title: >-
+  Euler's formula $V - E + F = 2$ for convex polyhedra
+kind: theorem
+difficulty: 4
+statement: >-
+  Let $P$ be a convex polyhedron with $V$ vertices, $E$ edges and $F$ faces. Then
+  $V - E + F = 2$.
+summary: >-
+  Remove one face and flatten the rest into a connected plane graph (same $V$, $E$, $F$). Add
+  diagonals until every bounded face is a triangle — this does not change $V - E + F$. Then peel
+  off boundary triangles one at a time; each peel also preserves $V - E + F$. What remains is a
+  single triangle, where $3 - 3 + 2 = 2$.
+tags: [geometry, graph-theory, topology, classics]
+prerequisites:
+  - def:polyhedron
+  - def:planar-graph
+  - def:connected-graph
+  - def:tree
+  - def:euler-characteristic
+  - lem:polyhedron-flattens
+  - lem:planar-triangulation
+  - lem:triangulation-ear
+  - lem:tree-has-leaf
+lean:
+  name: none
+  status: none
+  note: >-
+    Mathlib has no statement of Euler's polyhedron formula. The nearest formalised territory is
+    planar graph / combinatorial map theory and the Jordan curve theorem. This proof is therefore
+    presented without a formal link, which the reviewer should record explicitly.
+attribution: >-
+  Euler, 1758 (*Novi Commentarii*), though Descartes had an equivalent result a century earlier.
+  The flattening-and-peeling proof below is Cauchy's (1813), in the form popularised by Aigner and
+  Ziegler.
+
+steps:
+  - id: s1
+    text: >-
+      Remove one face of $P$ and stretch the remaining surface flat into the plane. The result is
+      a **connected plane graph** $G$ with the same numbers $V$, $E$ and $F$: the removed face
+      becomes the unbounded face of $G$. So it suffices to prove $V - E + F = 2$ for every
+      connected plane graph.
+    justification:
+      ref: lem:polyhedron-flattens
+    children:
+      - id: s1.1
+        text: >-
+          The vertices and edges of $P$ form a graph: $V$ vertices, $E$ edges, each edge joining
+          two distinct vertices.
+        justification:
+          ref: def:graph
+      - id: s1.2
+        text: >-
+          The faces of $P$ are the $F$ polygonal regions bounded by those edges. In a plane graph
+          we count *all* complementary regions, including exactly one unbounded region.
+        justification:
+          ref: def:planar-graph
+      - id: s1.3
+        text: >-
+          Delete the interior of one face $\sigma$ and project the rest of the surface onto the
+          plane of $\sigma$ from a point $O$ placed just outside $\sigma$. Because $P$ is convex,
+          no two projected edges cross, so we obtain a genuine plane drawing.
+        justification:
+          ref: lem:polyhedron-flattens
+        children:
+          - id: s1.3.1
+            text: >-
+              Radial projection from $O$ sends each remaining vertex to a point of the plane and
+              each remaining edge to a straight or curved arc joining the images of its endpoints;
+              incidence is preserved, so $V$ and $E$ are unchanged.
+            justification:
+              rule: rule:geometric-construction
+          - id: s1.3.2
+            text: >-
+              No crossings: $\sigma$ is exactly the part of the surface visible from $O$ when $O$
+              is sufficiently close to $\sigma$. With $\sigma$ removed, each ray from $O$ meets the
+              remaining surface at most once, so distinct points have distinct images.
+            justification:
+              ref: def:polyhedron
+            children:
+              - id: s1.3.2.1
+                text: >-
+                  For a convex body and an exterior point $O$, the set of boundary points visible
+                  from $O$ is a single "cap" bounded by the silhouette; making the distance from
+                  $O$ to $\sigma$ tend to $0$ shrinks that cap into the interior of $\sigma$.
+                justification:
+                  ref: def:polyhedron
+              - id: s1.3.2.2
+                text: >-
+                  This is the one step that uses convexity geometrically rather than
+                  combinatorially. A projection-free alternative proof of the same formula is
+                  given in step s6.
+                aside: true
+                justification:
+                  ref: def:connected-graph
+      - id: s1.4
+        text: >-
+          The image of the deleted face $\sigma$ becomes the unbounded region of the drawing, so
+          the plane graph $G$ has $(F - 1)$ bounded faces plus $1$ unbounded face — that is, $F$
+          faces in total. All three counts $V, E, F$ are unchanged.
+        justification:
+          ref: def:planar-graph
+      - id: s1.5
+        text: >-
+          $G$ is connected: the surface of a polyhedron minus the interior of one face is still
+          path-connected, since any path crossing $\sigma$ can be rerouted around its boundary.
+        justification:
+          ref: def:connected-graph
+
+  - id: s2
+    text: >-
+      **Triangulate.** Add diagonals inside bounded faces until every bounded face is a triangle.
+      Each added edge increases $E$ by $1$ and $F$ by $1$, leaving $V$ and $V - E + F$ unchanged.
+      So we may assume $G$ is triangulated.
+    justification:
+      ref: lem:planar-triangulation
+    children:
+      - id: s2.1
+        text: >-
+          While some bounded face has a boundary with $4$ or more sides, pick two non-adjacent
+          vertices on that boundary and join them by an arc drawn entirely inside the face.
+        justification:
+          rule: rule:geometric-construction
+      - id: s2.2
+        text: >-
+          One such addition splits one face into two, so $F \mapsto F + 1$, and uses one new edge,
+          so $E \mapsto E + 1$. No vertex is added: $V \mapsto V$.
+        justification:
+          ref: def:planar-graph
+        children:
+          - id: s2.2.1
+            text: >-
+              $V - (E+1) + (F+1) = V - E - 1 + F + 1 = V - E + F$.
+            justification:
+              rule: rule:algebra
+      - id: s2.3
+        text: >-
+          The process terminates. Define the *excess* of a bounded face as (number of boundary
+          sides $- 3$) and let $X$ be the total excess. Each addition reduces $X$ by at least $1$.
+        justification:
+          rule: rule:counting
+        children:
+          - id: s2.3.1
+            text: >-
+              Splitting a face with $m \ge 4$ sides into faces with $j$ and $m - j + 2$ sides
+              reduces the total excess by $(m-3) - (j-3) - (m-j+2-3) = 1$.
+            justification:
+              rule: rule:algebra
+          - id: s2.3.2
+            text: >-
+              $X$ is a nonnegative integer strictly decreasing at each step, so it cannot decrease
+              forever: eventually $X = 0$ and every bounded face is a triangle.
+            justification:
+              ref: lem:well-ordering
+      - id: s2.4
+        text: >-
+          Because $V - E + F$ is unchanged by every addition, proving the formula for the
+          triangulated graph proves it for the original $G$ (undo the additions in reverse order).
+        justification:
+          step: s2.2.1
+          rule: rule:substitution
+    checkpoint:
+      id: cp1
+      question: >-
+        We have just changed the graph. Why is it legitimate to prove the theorem for a *different*
+        graph than the one we were given?
+      options:
+        - >-
+          Because triangulated graphs are easier to draw.
+        - >-
+          Because $V - E + F$ is invariant under each edit, so the value computed for the
+          triangulated graph equals the value for the original graph.
+        - >-
+          Because every plane graph is already triangulated.
+        - >-
+          Because adding edges does not change $E$.
+      answer: 1
+      explanation: >-
+        This is the general "invariant" strategy: replace the object by a simpler one that is
+        provably equivalent *with respect to the quantity being computed*. The same trick appears
+        in step s3, where we simplify the graph all the way down to a triangle. Note the edits
+        must be reversible in value, not in the object — we never claim $G$ is the triangle, only
+        that both have the same $V - E + F$.
+
+  - id: s3
+    text: >-
+      **Peel.** Repeatedly remove a triangle that touches the unbounded face. There are only two
+      shapes of removal, and both leave $V - E + F$ unchanged.
+    justification:
+      ref: lem:triangulation-ear
+    widget:
+      id: euler-peel
+      caption: >-
+        Step through the peeling of a triangulated plane graph. The counters $V$, $E$, $F$ and
+        $V - E + F$ update after each removal — the last column never moves off $2$.
+    children:
+      - id: s3.1
+        text: >-
+          If the graph still has at least two bounded faces, some bounded triangle shares at least
+          one edge with the unbounded face. (Walk along the outer boundary; the first bounded face
+          you meet, or the one at a convex corner of the walk, is such a triangle.)
+        justification:
+          ref: lem:triangulation-ear
+      - id: s3.2
+        text: >-
+          **Case A — the triangle shares exactly one edge $e$ with the unbounded face.** Delete the
+          edge $e$ alone. Then $E \mapsto E - 1$, $F \mapsto F - 1$ (the triangle's interior merges
+          with the unbounded face), $V$ unchanged.
+        justification:
+          rule: rule:case-analysis
+        children:
+          - id: s3.2.1
+            text: >-
+              The graph stays connected: the two endpoints of $e$ are still joined by the other two
+              sides of the triangle.
+            justification:
+              ref: def:connected-graph
+          - id: s3.2.2
+            text: >-
+              $V - (E-1) + (F-1) = V - E + 1 + F - 1 = V - E + F$.
+            justification:
+              rule: rule:algebra
+      - id: s3.3
+        text: >-
+          **Case B — the triangle shares two edges $e_1, e_2$ with the unbounded face.** Let $B$ be
+          the vertex between them. Delete $e_1$, $e_2$ and $B$. Then $V \mapsto V-1$,
+          $E \mapsto E - 2$, $F \mapsto F - 1$.
+        justification:
+          rule: rule:case-analysis
+        children:
+          - id: s3.3.1
+            text: >-
+              $B$ has degree exactly $2$: its only incident edges are $e_1$ and $e_2$. Any further
+              edge at $B$ would have to be drawn inside the triangle, but the triangle is a face,
+              so its interior contains no edges.
+            justification:
+              ref: def:planar-graph
+          - id: s3.3.2
+            text: >-
+              After deleting $B$, $e_1$ and $e_2$, the third side of the triangle remains and now
+              lies on the outer boundary, so the graph is still connected and still plane.
+            justification:
+              ref: def:connected-graph
+          - id: s3.3.3
+            text: >-
+              $(V-1) - (E-2) + (F-1) = V - 1 - E + 2 + F - 1 = V - E + F$.
+            justification:
+              rule: rule:algebra
+      - id: s3.4
+        text: >-
+          These two cases are exhaustive: a bounded triangle of a plane graph meets the unbounded
+          face in one or two of its edges, and never in all three (if it did, the graph would have
+          no other bounded face at all, which is the terminal case handled in s4).
+        justification:
+          rule: rule:case-analysis
+      - id: s3.5
+        text: >-
+          Each peel strictly decreases $V + E$, which is a nonnegative integer, so the process must
+          terminate. After each peel the graph is still connected and triangulated, so s3.1 applies
+          again until only one bounded face is left.
+        justification:
+          ref: lem:well-ordering
+        children:
+          - id: s3.5.1
+            text: >-
+              In case A, $V + E$ decreases by $1$; in case B, by $3$. Either way it strictly
+              decreases.
+            justification:
+              rule: rule:arithmetic
+          - id: s3.5.2
+            text: >-
+              A strictly decreasing sequence of nonnegative integers cannot be infinite, so after
+              finitely many peels we reach a connected triangulated plane graph with exactly one
+              bounded face.
+            justification:
+              ref: lem:well-ordering
+
+  - id: s4
+    text: >-
+      What is left is a connected plane graph with exactly one bounded face. Prune any dangling
+      leaves; what remains is a single triangle, where $V - E + F = 3 - 3 + 2 = 2$.
+    justification:
+      rule: rule:counting
+    children:
+      - id: s4.1
+        text: >-
+          Its one bounded face is a triangle, because the graph is triangulated (s2.3). Any vertex
+          not on that triangle is part of a tree hanging off it, and a finite tree has a leaf, so
+          such vertices have degree $1$.
+        justification:
+          ref: lem:tree-has-leaf
+        children:
+          - id: s4.1.1
+            text: >-
+              Case A removals delete an edge but keep both of its endpoints, so they can leave
+              degree-$1$ vertices behind. That is exactly what we now clean up.
+            justification:
+              step: s3.2
+      - id: s4.2
+        text: >-
+          Prune the leaves one at a time. Each pruning removes one vertex and its single edge, so
+          $V \mapsto V-1$ and $E \mapsto E-1$, while $F$ is untouched: $(V-1) - (E-1) + F = V - E + F$.
+        justification:
+          rule: rule:algebra
+        children:
+          - id: s4.2.1
+            text: >-
+              Removing a leaf edge cannot merge two faces: that edge is a bridge, lying twice on the
+              boundary of one and the same face, so deleting it leaves the face count alone.
+            justification:
+              ref: def:planar-graph
+          - id: s4.2.2
+            text: >-
+              It cannot disconnect the rest either, since a leaf is joined to the graph by that one
+              edge only.
+            justification:
+              ref: def:connected-graph
+      - id: s4.3
+        text: >-
+          With no leaves left and one bounded face, the graph is exactly a triangle: $V = 3$,
+          $E = 3$, and $F = 2$ (its interior plus the unbounded region). So $V - E + F = 3 - 3 + 2 = 2$,
+          and since neither peeling nor pruning ever changed $V - E + F$, the graph we started from
+          satisfies $V - E + F = 2$ too.
+        justification:
+          rule: rule:arithmetic
+
+  - id: s5
+    text: >-
+      Unwinding: peeling preserved $V - E + F$ at every step, so the triangulated graph had
+      $V - E + F = 2$; de-triangulating preserved it, so $G$ had $V - E + F = 2$; and $G$ has the
+      same $V, E, F$ as the polyhedron $P$. Hence $V - E + F = 2$ for $P$. $\blacksquare$
+    justification:
+      step: s1.4
+    children:
+      - id: s5.1
+        text: >-
+          Terminal value $2$ (s4.3); unchanged by each peel (s3.2.2, s3.3.3); therefore the
+          triangulated $G$ has $V - E + F = 2$.
+        justification:
+          step: s3.3.3
+      - id: s5.2
+        text: >-
+          Unchanged by each diagonal addition (s2.2.1); therefore the original plane graph $G$ has
+          $V - E + F = 2$.
+        justification:
+          step: s2.2.1
+      - id: s5.3
+        text: >-
+          $G$ has the same $V$, $E$ and $F$ as $P$ (s1.4), so $P$ satisfies $V - E + F = 2$.
+        justification:
+          step: s1.4
+          rule: rule:substitution
+      - id: s5.4
+        text: >-
+          *Sanity checks.* Cube: $8 - 12 + 6 = 2$. Tetrahedron: $4 - 6 + 4 = 2$. Dodecahedron:
+          $20 - 30 + 12 = 2$. Octahedron: $6 - 12 + 8 = 2$.
+        aside: true
+        justification:
+          rule: rule:arithmetic
+      - id: s5.5
+        text: >-
+          *What can go wrong without convexity.* Convexity is used only in s1.3, to flatten without
+          crossings. Any polyhedron whose surface is topologically a sphere can be flattened too,
+          so the formula holds for them as well. But a polyhedron with a hole through it (a torus)
+          has $V - E + F = 0$: the number is a topological invariant, the Euler characteristic of
+          the surface.
+        aside: true
+        justification:
+          ref: def:euler-characteristic
+
+  - id: s6
+    text: >-
+      **A projection-free proof of the same identity.** For a connected plane graph $G$: take a
+      spanning tree $T$, for which $V - E + F = V - (V-1) + 1 = 2$; then add back the remaining
+      edges one at a time, each of which increases $E$ and $F$ by $1$. This never uses step s1.
+    justification:
+      ref: def:tree
+    children:
+      - id: s6.1
+        text: >-
+          Build a spanning tree $T$ of $G$: start with all $V$ vertices and no edges, and repeatedly
+          add an edge joining a vertex already in the partial tree to one not yet in it. Because $G$
+          is connected such an edge exists while the tree is incomplete.
+        justification:
+          ref: def:connected-graph
+        children:
+          - id: s6.1.1
+            text: >-
+              Each addition increases the vertex count of the partial tree by $1$ and the edge count
+              by $1$, and creates no cycle, so the result after $V-1$ steps is a tree on all $V$
+              vertices with $V-1$ edges.
+            justification:
+              ref: lem:tree-has-leaf
+      - id: s6.2
+        text: >-
+          Drawn alone in the plane, $T$ has exactly one face — the unbounded one — so
+          $V - E_T + F_T = V - (V-1) + 1 = 2$.
+        justification:
+          rule: rule:algebra
+      - id: s6.3
+        text: >-
+          Now add back the $E - (V-1)$ edges of $G$ not in $T$, one at a time. Each such edge joins
+          two vertices already connected in the current graph, so it closes a cycle and splits the
+          face it was drawn in into two: $E \mapsto E+1$, $F \mapsto F+1$, $V$ unchanged.
+        justification:
+          ref: def:tree
+        children:
+          - id: s6.3.1
+            text: >-
+              The added arc, together with the unique path between its endpoints already present,
+              forms a simple closed curve in the plane, which separates the plane into two regions
+              (Jordan curve theorem). So one face becomes two.
+            justification:
+              rule: rule:geometric-construction
+            children:
+              - id: s6.3.1.1
+                text: >-
+                  A tree has exactly one path between any two of its vertices, so the closed curve
+                  is simple (no self-intersections).
+                justification:
+                  ref: def:tree
+              - id: s6.3.1.2
+                text: >-
+                  *This is where topology re-enters, honestly labelled.* The Jordan curve theorem is
+                  a real theorem about the plane, not a diagram-chasing truism; it is much easier to
+                  state than to prove. The peeling argument in s3 needs a weaker version of the same
+                  fact, which is why both proofs are "combinatorial" only up to that point.
+                aside: true
+                justification:
+                  ref: def:planar-graph
+          - id: s6.3.2
+            text: >-
+              $V - (E+1) + (F+1) = V - E + F$, so the invariant survives every addition.
+            justification:
+              rule: rule:algebra
+      - id: s6.4
+        text: >-
+          After all edges are added the graph is $G$, and the invariant has never changed, so
+          $V - E + F = 2$ for $G$.
+        justification:
+          rule: rule:induction

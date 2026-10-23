@@ -1,0 +1,334 @@
+id: halting-undecidable
+title: >-
+  The halting problem is undecidable
+kind: theorem
+difficulty: 5
+statement: >-
+  No Turing machine halts on every input and correctly decides, for every pair
+  $(\langle M\rangle, x)$, whether the Turing machine $M$ halts on input $x$. In other words
+  $\mathrm{HALT}$ is not decidable.
+summary: >-
+  Assume a decider $H$ exists. Build $D$, which on input $\langle M\rangle$ consults
+  $H(\langle M\rangle,\langle M\rangle)$ and then does the opposite. Feeding $D$ its own
+  description gives a contradiction in both cases, so $H$ cannot exist.
+tags: [computation, logic, diagonalisation, classics]
+prerequisites:
+  - def:turing-machine
+  - def:computable-function
+  - def:decision-problem
+  - def:halting-problem
+  - def:program-encoding
+  - lem:strings-countable
+  - ax:church-turing
+related:
+  - cantor-uncountable
+lean:
+  name: none
+  status: none
+  note: >-
+    Mathlib has a developed theory of computability (`Mathlib/Computability/Partrec.lean`,
+    `Primrec`, `Partrec`) but no formalised undecidability-of-halting theorem as of the writing of
+    this entry. Recorded as "no formal link" rather than guessed.
+attribution: >-
+  Alan Turing, "On Computable Numbers, with an Application to the
+  *Entscheidungsproblem*" (1936). Alonzo Church proved the equivalent result for the
+  $\lambda$-calculus a few months earlier by a different route.
+
+steps:
+  - id: s1
+    text: >-
+      Suppose, for contradiction, that the halting problem is decidable: there is a Turing machine
+      $H$ which, given any pair $(\langle M\rangle, x)$, always halts and answers **"halts"** if
+      $M$ halts on input $x$, and **"loops"** if $M$ runs forever on $x$.
+    justification:
+      rule: rule:contradiction
+      note: Temporary assumption, discharged at step s5.
+    children:
+      - id: s1.1
+        text: >-
+          The problem being decided is the set
+          $\mathrm{HALT} = \{\langle M, x\rangle : M \text{ halts on } x\}$, and deciding it means
+          computing its characteristic function.
+        justification:
+          ref: def:halting-problem
+      - id: s1.2
+        text: >-
+          "Decidable" requires a machine that halts on **every** input and gives the correct answer
+          on every input. Both halves matter.
+        justification:
+          ref: def:decision-problem
+        children:
+          - id: s1.2.1
+            text: >-
+              A machine that gives correct answers but sometimes runs forever is a *semi-decider*.
+              $\mathrm{HALT}$ is semi-decidable: simulate $M$ on $x$ step by step and report "halts"
+              the moment it halts.
+            justification:
+              ref: def:turing-machine
+          - id: s1.2.2
+            text: >-
+              That is why the theorem is surprising: the "yes" answers are already mechanical. What
+              is impossible is ever being entitled to say "no".
+            aside: true
+            justification:
+              ref: def:decision-problem
+      - id: s1.3
+        text: >-
+          So assume $H$ exists, with the two properties: **totality** ($H$ halts on every input) and
+          **correctness** ($H$'s answer matches what $M$ really does).
+        justification:
+          rule: rule:contradiction
+      - id: s1.4
+        text: >-
+          $H$ is itself a Turing machine, so $H$ is computable and has its own finite encoding
+          $\langle H\rangle$.
+        justification:
+          ref: def:program-encoding
+
+  - id: s2
+    text: >-
+      Using $H$ as a subroutine, build a new machine $D$:
+      $$D(\langle M\rangle) \;=\; \begin{cases} \text{loop forever} & \text{if } H(\langle M\rangle, \langle M\rangle) = \text{"halts"},\\[2pt] \text{halt} & \text{if } H(\langle M\rangle, \langle M\rangle) = \text{"loops"}.\end{cases}$$
+      $D$ reads its own input as a program, asks $H$ what that program does to *itself*, and does
+      the opposite.
+    justification:
+      rule: rule:diagonal-construction
+    widget:
+      id: halting-oracle
+      caption: >-
+        Trace $D(\langle D\rangle)$: feed the oracle an assumption, watch the inverter flip it, and
+        see the output contradict the assumption. Both branches are dead ends.
+    children:
+      - id: s2.1
+        text: >-
+          $D$'s procedure: (i) read the input string $w$; (ii) form the pair $(w, w)$; (iii) run $H$
+          on it; (iv) read $H$'s one-word answer; (v) if it is "halts", enter an endless loop, else
+          halt.
+        justification:
+          rule: rule:construction
+        children:
+          - id: s2.1.1
+            text: >-
+              Steps (i) and (ii) are a finite-state routine: copy the input to a second track and
+              write the fixed pairing delimiter between the two copies.
+            justification:
+              ref: def:turing-machine
+          - id: s2.1.2
+            text: >-
+              Step (iii) runs $H$ as a subroutine. A universal machine can simulate any machine whose
+              description it is given, and $\langle H\rangle$ is fixed and finite.
+            justification:
+              ref: def:program-encoding
+            children:
+              - id: s2.1.2.1
+                text: >-
+                  Simulation is possible because a machine description is a finite string over a fixed
+                  alphabet, so a finite control can parse it into states and transitions and then
+                  carry out the steps one at a time.
+                justification:
+                  ref: lem:strings-countable
+          - id: s2.1.3
+            text: >-
+              Steps (iv) and (v) inspect the last symbol written and branch on it — a finite lookup
+              table, hence computable.
+            justification:
+              ref: def:computable-function
+      - id: s2.2
+        text: >-
+          Step (ii) is *self-application*: the input is used both as the program under inspection and
+          as the data given to it. This is legal because encodings are strings and programs take
+          strings.
+        justification:
+          ref: def:program-encoding
+      - id: s2.3
+        text: >-
+          Step (v) is the **diagonal flip**: $D$ deliberately disagrees with $H$'s prediction about
+          $D$'s own input.
+        justification:
+          rule: rule:diagonal-construction
+        children:
+          - id: s2.3.1
+            text: >-
+              Flipping a two-valued answer is computable: a finite lookup table on the last symbol
+              written.
+            justification:
+              ref: def:computable-function
+          - id: s2.3.2
+            text: >-
+              "Loop forever" is implementable as a state whose transition sends the head right
+              without changing state; "halt" is the halting state. Both are finite instructions.
+            justification:
+              ref: def:turing-machine
+
+  - id: s3
+    text: >-
+      $D$ is a genuine Turing machine with a finite encoding $\langle D\rangle$, and
+      $$D(\langle M\rangle) \text{ halts} \quad\Longleftrightarrow\quad H(\langle M\rangle, \langle M\rangle) \text{ says "loops"}.$$
+    justification:
+      ref: def:computable-function
+    children:
+      - id: s3.1
+        text: >-
+          $D$ is a finite object: finitely many states (the states of $H$ plus a handful of extra
+          ones for duplication and flipping), a finite alphabet, and a finite transition table.
+        justification:
+          ref: def:turing-machine
+      - id: s3.2
+        text: >-
+          Therefore $D$ has an encoding $\langle D\rangle$, a finite string over the fixed alphabet —
+          the same kind of object $D$ accepts as input.
+        justification:
+          ref: def:program-encoding
+      - id: s3.3
+        text: >-
+          $D$ is computable: it is built from the computable $H$ (assumed in s1) by composition,
+          duplication of input, and a finite branch. Computable functions are closed under these
+          operations.
+        justification:
+          rule: rule:composition
+        children:
+          - id: s3.3.1
+            text: >-
+              A Turing machine can copy its input to a second track and run another machine as a
+              subroutine; this is a standard construction and preserves finiteness of the
+              description.
+            justification:
+              ref: def:turing-machine
+          - id: s3.3.2
+            text: >-
+              Since $H$ halts on every input by s1.3, the subroutine call in $D$ always returns, so
+              $D$'s behaviour is fully determined by $H$'s answer.
+            justification:
+              step: s1.3
+      - id: s3.4
+        text: >-
+          Reading off the definition in s2: for every string $w$, $D(w)$ halts iff
+          $H(w,w)$ outputs "loops".
+        justification:
+          step: s2.1
+          rule: rule:instantiation
+
+  - id: s4
+    text: >-
+      Now ask the single question: **does $D(\langle D\rangle)$ halt?** Both answers lead to a
+      contradiction.
+    justification:
+      rule: rule:case-analysis
+    children:
+      - id: s4.1
+        text: >-
+          The question is meaningful: $\langle D\rangle$ is a finite string (s3.2) and $D$ accepts
+          any finite string as input, so $D(\langle D\rangle)$ is a well-defined run that either
+          halts or does not.
+        justification:
+          step: s3.2
+      - id: s4.2
+        text: >-
+          **Case 1: $D(\langle D\rangle)$ halts.** Then by s3.4 (with $w = \langle D\rangle$),
+          $H(\langle D\rangle,\langle D\rangle)$ output "loops".
+        justification:
+          step: s3.4
+        children:
+          - id: s4.2.1
+            text: >-
+              But $H$ is correct by assumption (s1.3): "loops" means $D(\langle D\rangle)$ does not
+              halt.
+            justification:
+              step: s1.3
+              ref: def:decision-problem
+          - id: s4.2.2
+            text: >-
+              So Case 1 implies "$D(\langle D\rangle)$ halts and $D(\langle D\rangle)$ does not halt"
+              — a contradiction of the form $Q \land \neg Q$.
+            justification:
+              rule: rule:contradiction
+      - id: s4.3
+        text: >-
+          **Case 2: $D(\langle D\rangle)$ does not halt.** Then $H$'s correct answer is "loops".
+        justification:
+          step: s1.3
+        children:
+          - id: s4.3.1
+            text: >-
+              By the definition of $D$ (s2.1, step v), receiving the answer "loops" makes $D$ halt.
+            justification:
+              step: s2.1
+          - id: s4.3.2
+            text: >-
+              So Case 2 implies "$D(\langle D\rangle)$ does not halt and $D(\langle D\rangle)$ halts"
+              — again a contradiction.
+            justification:
+              rule: rule:contradiction
+      - id: s4.4
+        text: >-
+          By excluded middle, $D(\langle D\rangle)$ either halts or does not; the two cases are
+          exhaustive and both are impossible.
+        justification:
+          ref: ax:excluded-middle
+          rule: rule:case-analysis
+    checkpoint:
+      id: cp1
+      question: >-
+        Which assumption is actually destroyed by the contradiction in s4?
+      options:
+        - >-
+          That $D$ is computable.
+        - >-
+          That Turing machines can be encoded as strings.
+        - >-
+          That a correct, always-halting decider $H$ exists. Everything else ($D$ is a machine,
+            encodings exist, self-application is legal) is uncontroversial and used only to build $D$.
+        - >-
+          That the law of excluded middle holds.
+      answer: 2
+      explanation: >-
+        The contradiction is derived from $H$'s two properties — totality and correctness — together
+        with facts that are outright true. Notice that $D$ is not paradoxical on its own: $D$ is a
+        perfectly ordinary machine that happens to be built out of $H$. If $H$ does not exist then
+        $D$ does not exist either, and there is no self-referential machine to worry about. This is
+        exactly why the conclusion is "$H$ cannot exist" and not "computation is inconsistent".
+      hint: >-
+        Ask which of the listed statements you would be willing to give up.
+
+  - id: s5
+    text: >-
+      Therefore no such machine $H$ exists: **the halting problem is undecidable.** $\blacksquare$
+    justification:
+      rule: rule:contradiction
+    children:
+      - id: s5.1
+        text: >-
+          The assumption "there is a total, correct decider $H$ for $\mathrm{HALT}$" (s1) implies a
+          contradiction (s4.4).
+        justification:
+          step: s4.4
+      - id: s5.2
+        text: >-
+          Hence the assumption is false: $\mathrm{HALT}$ is not decidable by any Turing machine.
+        justification:
+          ref: def:decision-problem
+      - id: s5.3
+        text: >-
+          By the Church–Turing thesis, "Turing machine" captures every effective procedure, so no
+          program in any programming language decides the halting problem for that language either.
+        justification:
+          ref: ax:church-turing
+      - id: s5.4
+        text: >-
+          *Corollaries by the same shape of argument.* No algorithm decides whether a program ever
+          prints a given string, whether two programs are equivalent on all inputs, whether a
+          program terminates within $10^6$ steps on all inputs, or whether a Diophantine equation has
+          a solution (Matiyasevich, via Hilbert's tenth problem). Rice's theorem packages the whole
+          family: every nontrivial semantic property of programs is undecidable.
+        aside: true
+        justification:
+          rule: rule:composition
+      - id: s5.5
+        text: >-
+          *The same move as Cantor.* Rows of the grid are machines, columns are inputs, the diagonal
+          is self-application $\langle M\rangle \mapsto M(\langle M\rangle)$, and $D$ is defined to
+          differ from the diagonal everywhere. Compare `cantor-uncountable`, step s3: there the flip
+          was $5 \leftrightarrow 4$ on digits; here it is halt $\leftrightarrow$ loop on behaviours.
+        aside: true
+        justification:
+          rule: rule:diagonal-construction
